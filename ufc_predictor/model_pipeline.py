@@ -9,6 +9,7 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.ensemble import HistGradientBoostingClassifier
 import joblib
+import sqlite3
 
 # ---------------------------------------------------------------------------
 # OPTIONAL XGBOOST IMPORT (falls back gracefully)
@@ -43,7 +44,10 @@ FEATURES = [
 # ---------------------------------------------------------------------------
 
 def load_data() -> pd.DataFrame:
-    return pd.read_csv(DATA_PATH)
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
+    conn = sqlite3.connect(db_path)
+    query = "SELECT * FROM fights"
+    return pd.read_sql_query(query, conn)
 
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:

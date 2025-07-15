@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import os
 from ufc_predictor.utils import get_fighter_stats, fill_missing_stats
+import sqlite3
 
 main = Blueprint('main', __name__)
 
@@ -45,9 +46,14 @@ def home():
 @main.route('/search_fighters', methods=['GET'])
 def search_fighters():
     term = request.args.get('term', '')
-    fighter_db = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'data', 'fighter_db.csv'))
-    fighters = fighter_db[fighter_db['name'].str.contains(term, case=False)]['name'].tolist()
-    return jsonify(fighters[:10])
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name FROM fighters WHERE name LIKE ? LIMIT 10", (f'%{term}%',))
+    fighters = [row[0] for row in cursor.fetchall()]
+
+    return jsonify(fighters)
 
 
 @main.route('/get_fighter_stats', methods=['POST'])

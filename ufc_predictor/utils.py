@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import numpy as np
-
+import sqlite3
 
 def get_data_path():
     """Get absolute path to data file"""
@@ -84,60 +84,58 @@ def get_fighter_db_path():
 
 
 def get_fighter_stats(fighter_name):
-    """Get stats for a specific fighter with enhanced matching"""
-    try:
-        fighter_db = pd.read_csv(get_fighter_db_path())
-        # Normalize fighter names
-        fighter_db['normalized_name'] = fighter_db['name'].str.lower().str.strip()
-        search_name = fighter_name.lower().strip()
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
-        # Try exact match
-        exact_match = fighter_db[fighter_db['normalized_name'] == search_name]
-        if not exact_match.empty:
-            stats = exact_match.iloc[0].to_dict()
-            return fill_missing_stats(stats)
+    cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
+    result = cursor.fetchone()
 
-        # Try close match
-        close_matches = fighter_db[
-            fighter_db['normalized_name'].str.contains(search_name) |
-            fighter_db['name'].str.contains(fighter_name, case=False)
-            ]
+    if result:
+        columns = [col[0] for col in cursor.description]
+        stats = dict(zip(columns, result))
+        return stats
 
-        if not close_matches.empty:
-            stats = close_matches.iloc[0].to_dict()
-            return fill_missing_stats(stats)
-
-        return None
-    except Exception as e:
-        print(f"Error getting stats for {fighter_name}: {str(e)}")
-        return None
+    return None
 
 
 def fill_missing_stats(stats):
-    """Fill missing fighter stats with median values"""
-    # Load the database to get medians
-    fighter_db = pd.read_csv(get_fighter_db_path())
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
-    # Add all expected fields with defaults
+    # Get median values from database
+    cursor.execute("""
+                   SELECT AVG(height)       AS height,
+                          AVG(reach)        AS reach,
+                          AVG(age)          AS age,
+                          AVG(avg_sig_str)  AS avg_sig_str,
+                          AVG(avg_td_pct)   AS avg_td_pct,
+                          AVG(avg_sub_att)  AS avg_sub_att,
+                          AVG(total_fights) AS total_fights
+                   FROM fighters
+                   """)
+    medians = cursor.fetchone()
+    median_cols = [col[0] for col in cursor.description]
+    median_vals = dict(zip(median_cols, medians))
+
+    # Fill missing values
     defaults = {
-        'height': fighter_db['height'].median(),
-        'reach': fighter_db['reach'].median(),
+        'height': median_vals['height'],
+        'reach': median_vals['reach'],
         'stance': 'Orthodox',
-        'age': fighter_db['age'].median(),
+        'age': median_vals['age'],
         'win_streak': 0,
         'ko_wins': 0,
         'weight_class': 'Lightweight',
-        'avg_sig_str': fighter_db['avg_sig_str'].median(),
-        'avg_td_pct': fighter_db['avg_td_pct'].median(),
-        'avg_sub_att': fighter_db['avg_sub_att'].median(),
-        'total_fights': fighter_db['total_fights'].median()
+        'avg_sig_str': median_vals['avg_sig_str'],
+        'avg_td_pct': median_vals['avg_td_pct'],
+        'avg_sub_att': median_vals['avg_sub_att'],
+        'total_fights': median_vals['total_fights']
     }
 
-    # Fill missing values
     for key, value in defaults.items():
         if key not in stats or pd.isna(stats.get(key)):
             stats[key] = value
 
-    # Ensure all required fields exist
-    stats.setdefault('name', 'Unknown Fighter')
     return stats

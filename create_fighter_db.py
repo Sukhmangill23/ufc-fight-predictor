@@ -2,9 +2,13 @@ import pandas as pd
 import os
 import numpy as np
 from ufc_predictor.utils import get_data_path
+import sqlite3
 
 
 def create_fighter_database():
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
     # Load original data
     df = pd.read_csv(get_data_path())
 
@@ -66,15 +70,14 @@ def create_fighter_database():
                 'win_streak': row['BlueCurrentWinStreak']
             }
 
-    # Convert to DataFrame and save
     fighter_df = pd.DataFrame.from_dict(fighters, orient='index')
     fighter_df.index.name = 'name'
     fighter_df.reset_index(inplace=True)
 
-    # Save to data directory
-    db_path = os.path.join(os.path.dirname(get_data_path()), 'fighter_db.csv')
-    fighter_df.to_csv(db_path, index=False)
-    print(f"Fighter database created with {len(fighter_df)} fighters at {db_path}")
+    # Save to database
+    fighter_df.to_sql('fighters', conn, if_exists='replace', index=False)
+
+    print(f"Fighter database created with {len(fighter_df)} fighters in SQLite")
 
 
 if __name__ == "__main__":
