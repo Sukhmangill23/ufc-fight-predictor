@@ -77,65 +77,78 @@ def preprocess_data(df):
     return df
 
 
-def get_fighter_db_path():
-    """Get absolute path to fighter database"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(current_dir, '..', 'data', 'fighter_db.csv')
-
-
 def get_fighter_stats(fighter_name):
     db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
-    result = cursor.fetchone()
+        cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
+        result = cursor.fetchone()
 
-    if result:
-        columns = [col[0] for col in cursor.description]
-        stats = dict(zip(columns, result))
-        return stats
-
-    return None
+        if result:
+            columns = [col[0] for col in cursor.description]
+            stats = dict(zip(columns, result))
+            return stats
+        else:
+            return None
+    except Exception as e:
+        print(f"Error fetching fighter stats: {str(e)}")
+        return None
+    finally:
+        conn.close()
 
 
 def fill_missing_stats(stats):
     db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
 
-    # Get median values from database
-    cursor.execute("""
-                   SELECT AVG(height)       AS height,
-                          AVG(reach)        AS reach,
-                          AVG(age)          AS age,
-                          AVG(avg_sig_str)  AS avg_sig_str,
-                          AVG(avg_td_pct)   AS avg_td_pct,
-                          AVG(avg_sub_att)  AS avg_sub_att,
-                          AVG(total_fights) AS total_fights
-                   FROM fighters
-                   """)
-    medians = cursor.fetchone()
-    median_cols = [col[0] for col in cursor.description]
-    median_vals = dict(zip(median_cols, medians))
+        # Get median values from database
+        cursor.execute("""
+            SELECT 
+                COALESCE(AVG(height), 180) AS height,
+                COALESCE(AVG(reach), 180) AS reach,
+                COALESCE(AVG(age), 30) AS age,
+                COALESCE(AVG(avg_sig_str), 100) AS avg_sig_str,
+                COALESCE(AVG(avg_td_pct), 30) AS avg_td_pct,
+                COALESCE(AVG(avg_sub_att), 1.5) AS avg_sub_att,
+                COALESCE(AVG(total_fights), 10) AS total_fights
+            FROM fighters
+        """)
+        medians = cursor.fetchone()
+        median_cols = [col[0] for col in cursor.description]
+        median_vals = dict(zip(median_cols, medians))
 
-    # Fill missing values
-    defaults = {
-        'height': median_vals['height'],
-        'reach': median_vals['reach'],
-        'stance': 'Orthodox',
-        'age': median_vals['age'],
-        'win_streak': 0,
-        'ko_wins': 0,
-        'weight_class': 'Lightweight',
-        'avg_sig_str': median_vals['avg_sig_str'],
-        'avg_td_pct': median_vals['avg_td_pct'],
-        'avg_sub_att': median_vals['avg_sub_att'],
-        'total_fights': median_vals['total_fights']
-    }
+        # Fill missing values with sensible defaults
+        defaults = {
+            'height': 180,
+            'reach': 180,
+            'stance': 'Orthodox',
+            'age': 30,
+            'win_streak': 0,
+            'ko_wins': 0,
+            'weight_class': 'Lightweight',
+            'avg_sig_str': 100,
+            'avg_td_pct': 30,
+            'avg_sub_att': 1.5,
+            'total_fights': 10
+        }
 
-    for key, value in defaults.items():
-        if key not in stats or pd.isna(stats.get(key)):
-            stats[key] = value
+        # Override with median values if available
+        for key in defaults:
+            if key in median_vals and median_vals[key] is not None:
+                defaults[key] = median_vals[key]
 
-    return stats
+        # Apply defaults to missing stats
+        for key, value in defaults.items():
+            if key not in stats or pd.isna(stats.get(key)):
+                stats[key] = value
+
+        return stats
+    except Exception as e:
+        print(f"Error filling missing stats: {str(e)}")
+        return stats
+    finally:
+        conn.close()

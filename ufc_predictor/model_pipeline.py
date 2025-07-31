@@ -10,7 +10,12 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.ensemble import HistGradientBoostingClassifier
 import joblib
 import sqlite3
-
+import pandas as pd
+import joblib
+import os
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.inspection import permutation_importance
 # ---------------------------------------------------------------------------
 # OPTIONAL XGBOOST IMPORT (falls back gracefully)
 # ---------------------------------------------------------------------------
@@ -156,6 +161,18 @@ def build_pipeline() -> Pipeline:
 # TRAINING ENTRYPOINT
 # ---------------------------------------------------------------------------
 
+
+# model_pipeline.py (final fix)
+# model_pipeline.py (final SHAP implementation)
+class ModelWrapper(BaseEstimator, ClassifierMixin):
+    def __init__(self, model):
+        self.model = model
+
+    def predict_proba(self, X):
+        return self.model.predict_proba(X)
+
+
+# Remove all SHAP-related code and replace with feature importance
 def train_model(save: bool = True):
     df = preprocess_data(load_data())
     X, y = df.drop(columns=['Target']), df['Target']
@@ -172,11 +189,71 @@ def train_model(save: bool = True):
         joblib.dump(pipe, MODEL_PATH)
         print(f"Model saved → {MODEL_PATH}")
 
-    return pipe
+        # Save feature importance instead of SHAP explainer
+        try:
+            # Get feature importances
+            if hasattr(pipe.named_steps['classifier'], 'feature_importances_'):
+                importances = pipe.named_steps['classifier'].feature_importances_
+            elif hasattr(pipe.named_steps['classifier'], 'coef_'):
+                importances = pipe.named_steps['classifier'].coef_[0]
+            else:
+                importances = np.ones(len(FEATURES)) / len(FEATURES)
 
+            # Create feature importance dictionary
+            feature_importance = dict(zip(FEATURES, importances))
+
+            # Save to file
+            importance_path = os.path.join(MODEL_DIR, 'feature_importance.pkl')
+            joblib.dump(feature_importance, importance_path)
+            print(f"Feature importance saved → {importance_path}")
+
+        except Exception as e:
+            print(f"Error saving feature importance: {str(e)}")
+
+    return pipe
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+def train_model(save: bool = True):
+    df = preprocess_data(load_data())
+    X, y = df.drop(columns=['Target']), df['Target']
+
+    pipe = build_pipeline()
+    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+    scores = cross_val_score(pipe, X, y, cv=cv, scoring='roc_auc', n_jobs=-1)
+    print(f"Mean ROC‑AUC (10‑fold): {scores.mean():.4f} ± {scores.std():.4f}")
+
+    pipe.fit(X, y)
+
+    if save:
+        os.makedirs(MODEL_DIR, exist_ok=True)
+        joblib.dump(pipe, MODEL_PATH)
+        print(f"Model saved → {MODEL_PATH}")
+
+        # Calculate permutation importance
+        # Get feature names after preprocessing
+        feature_names = FEATURES
+
+        # Calculate permutation importance
+        result = permutation_importance(
+            pipe, X, y, n_repeats=10, random_state=42, n_jobs=-1
+        )
+
+        # Create sorted feature importance
+        sorted_idx = result.importances_mean.argsort()[::-1]
+        feature_importance = {
+            feature_names[i]: result.importances_mean[i]
+            for i in sorted_idx
+        }
+
+        # Save to file
+        importance_path = os.path.join(MODEL_DIR, 'feature_importance.pkl')
+        joblib.dump(feature_importance, importance_path)
+        print(f"Feature importance saved → {importance_path}")
+
+    return pipe
+
+
 
 if __name__ == "__main__":
     print("🚀  Training UFC predictor (v4)…")
