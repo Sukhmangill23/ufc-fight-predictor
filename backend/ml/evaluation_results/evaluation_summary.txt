@@ -1,0 +1,166 @@
+UFC Fight Predictor - Model Evaluation Report
+============================================================
+
+
+DATASET INFORMATION
+-------------------
+
+
+Dataset Information:
+- Original shape: (6528, 118)
+- Processed shape: (6528, 73)
+- Features: 72
+- Fights: 6528
+- Time period: 2010-03-21 to 2024-12-07
+
+
+
+ACCURACY
+--------
+
+Overall Accuracy: 0.6578
+
+
+CLASSIFICATION REPORT
+---------------------
+
+              precision    recall  f1-score   support
+
+    Blue Win       0.57      0.72      0.64      2741
+     Red Win       0.75      0.61      0.67      3787
+
+    accuracy                           0.66      6528
+   macro avg       0.66      0.67      0.66      6528
+weighted avg       0.68      0.66      0.66      6528
+
+
+
+CONFUSION MATRIX
+----------------
+
+             Predicted Blue  Predicted Red
+Actual Blue            1984            757
+Actual Red             1477           2310
+
+
+ROC CURVE ANALYSIS
+------------------
+
+
+ROC Curve Analysis:
+- AUC Score: 0.7328
+- Interpretation: Fair (0.7-0.8)
+
+
+
+PRECISION-RECALL ANALYSIS
+-------------------------
+
+
+Precision-Recall Analysis:
+- Average Precision: 0.7919
+- Baseline: 0.5801 (class distribution)
+
+
+
+TOP 10 FEATURE IMPORTANCES
+--------------------------
+
+           Feature  Importance
+1         BlueOdds    0.368275
+0          RedOdds    0.304390
+2        OddsRatio    0.170550
+8           RedAge    0.036235
+9          BlueAge    0.034065
+3     WinStreakDif    0.026209
+6       SizeAdvRed    0.018888
+5      ReachAdvRed    0.018677
+4     HeightAdvRed    0.014670
+10  NumberOfRounds    0.003159
+
+
+PREDICTION DISTRIBUTION
+-----------------------
+
+count    6528.000000
+mean        0.512834
+std         0.175560
+min         0.155752
+25%         0.375477
+50%         0.490650
+75%         0.655665
+max         0.885281
+Name: Predicted Probability, dtype: float64
+
+
+CALIBRATION ANALYSIS
+--------------------
+
+Actual Outcome   Blue Win   Red Win  Total Predictions
+Probability Bin                                       
+(-0.001, 0.1]    0.000000  0.000000                  0
+(0.1, 0.2]       0.898148  0.101852                108
+(0.2, 0.3]       0.729665  0.270335                836
+(0.3, 0.4]       0.566390  0.433610                964
+(0.4, 0.5]       0.470702  0.529298               1553
+(0.5, 0.6]       0.355161  0.644839                901
+(0.6, 0.7]       0.280612  0.719388                980
+(0.7, 0.8]       0.169856  0.830144                836
+(0.8, 0.9]       0.057143  0.942857                350
+(0.9, 1.0]       0.000000  0.000000                  0
+
+
+YEARLY PERFORMANCE
+------------------
+
+    Year  Accuracy  Fight Count
+0   2010  0.657143          210
+1   2011  0.705085          295
+2   2012  0.666667          333
+3   2013  0.680851          376
+4   2014  0.649798          494
+5   2015  0.635776          464
+6   2016  0.660455          483
+7   2017  0.636364          440
+8   2018  0.673036          471
+9   2019  0.629191          507
+10  2020  0.640798          451
+11  2021  0.641700          494
+12  2022  0.662055          506
+13  2023  0.666667          504
+14  2024  0.684000          500
+
+
+HISTORICAL SUPERFIGHT PREDICTIONS
+---------------------------------
+
+         Red Fighter         Blue Fighter Actual Winner Predicted Winner Red Win Prob Blue Win Prob  Correct
+0     Conor McGregor  Khabib Nurmagomedov          Blue              Red        56.1%         43.9%    False
+1          Jon Jones       Daniel Cormier           Red              Red        53.7%         46.3%     True
+2    Israel Adesanya         Alex Pereira          Blue              Red        52.3%         47.7%    False
+3       Ronda Rousey           Holly Holm          Blue              Red        55.1%         44.9%    False
+4  Georges St-Pierre      Michael Bisping           Red             Blue        46.0%         54.0%    False
+5     Anderson Silva         Chael Sonnen           Red              Red        52.6%         47.4%     True
+6          Nate Diaz       Conor McGregor          Blue             Blue        49.5%         50.5%     True
+7       Amanda Nunes         Ronda Rousey           Red             Blue        44.5%         55.5%    False
+
+
+SUPERFIGHT ACCURACY
+-------------------
+
+Accuracy on historical superfights: 37.5%
+
+
+BETTING SIMULATION RESULTS
+--------------------------
+
+
+BETTING STRATEGY RESULTS:
+- Total fights with odds: 6290
+- Bets placed: 1839
+- Win rate: 53.1%
+- Total return: $48500.34
+- Total stake: $183900.00
+- ROI: 26.4%
+
+

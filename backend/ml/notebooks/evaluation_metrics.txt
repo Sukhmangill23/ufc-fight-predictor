@@ -1,0 +1,8 @@
+accuracy: 0.6577818627450981
+roc_auc: 0.7327700989781764
+average_precision: 0.7918860954242352
+superfight_accuracy: 0.375
+total_bets: 1839
+total_return: 48500.338932340295
+roi: 26.373213122534146
+win_percentage: 0.5312669929309407
