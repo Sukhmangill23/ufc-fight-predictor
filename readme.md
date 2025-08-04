@@ -41,3 +41,15 @@ Mixed Martial Arts predictions are notoriously difficult due to:
 ## ⚙️ Technical Architecture
 
 ### System Flow
+
+┌──────────────────────┐ ┌──────────────────┐ ┌───────────────────┐
+│ React Frontend │──────▶│ Flask REST API │──────▶│ XGBoost Model │
+│ (User Interface) │◀──────│ (Python Backend) │◀──────│ (Predictions) │
+└──────────────────────┘ └──────────────────┘ └───────────────────┘
+▲ ▲
+│ │
+▼ ▼
+┌──────────────────────┐ ┌──────────────────────┐
+│ SQLite Database │ │ Historical Fight Data │
+│ (Fighter Profiles) │ │ (5,000+ UFC Fights) │
+└──────────────────────┘ └──────────────────────┘
