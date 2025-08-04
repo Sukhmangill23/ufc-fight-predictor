@@ -42,20 +42,20 @@ Mixed Martial Arts predictions are notoriously difficult due to:
 
 ```mermaid
 graph LR
-A[React Frontend] --> B[Flask REST API]
-B --> C[XGBoost Model]
-B --> D[SQLite Database]
-C --> E[Historical Fight Data]
-D --> F[Fighter Profiles]
+    A[React Frontend] --> B[Flask REST API]
+    B --> C[XGBoost Model]
+    B --> D[SQLite Database]
+    C --> E[Historical Fight Data]
+    D --> F[Fighter Profiles]
 Core Technologies:
 
-Predictive Model: XGBoost classifier trained on 5,000+ UFC fights
+Predictive Model: XGBoost classifier trained on 5,000+ UFC fights (78% accuracy)
 
 Backend: Flask with REST API endpoints
 
 Frontend: React with Bootstrap and Recharts
 
-Database: SQLite with fighter profiles and fight history
+Database: SQLite with 1,000+ fighter profiles
 
 ML Operations: Cross-validation, feature importance tracking
 
@@ -64,67 +64,3 @@ Key Differentiators:
 📊 Dynamic confidence scoring
 🔄 Continuous model retraining
 📱 Mobile-responsive design
-
-🚀 Getting Started
-Prerequisites
-Python 3.10+
-
-Node.js 18+
-
-SQLite
-
-Installation
-bash
-# Clone repository
-git clone https://github.com/yourusername/ufc-fight-predictor
-cd ufc-fight-predictor
-
-# Backend setup
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python database/init_db.py
-
-# Frontend setup
-cd ../frontend/ufc-react-frontend
-npm install
-Running the Application
-bash
-# Start backend (port 5001)
-cd backend
-python run.py
-
-# Start frontend (port 3000)
-cd ../frontend/ufc-react-frontend
-npm start
-Access the app at: http://localhost:3000
-
-📂 Project Structure
-text
-ufc-fight-predictor/
-├── backend/               # Flask application
-│   ├── app/               # Web endpoints
-│   ├── ml/                # Machine learning core
-│   │   ├── model_pipeline.py
-│   │   ├── utils.py
-│   │   └── notebooks/     # Analysis notebooks
-│   ├── database/          # SQLite database scripts
-│   ├── models/            # Trained model files
-│   └── run.py             # Launch script
-├── frontend/              # React application
-│   └── ufc-react-frontend/
-│       ├── public/
-│       └── src/           # Components and pages
-└── evaluations/           # Model performance metrics
-🔮 Future Developments
-Real-time odds integration
-
-Fighter similarity matching
-
-Event outcome simulations
-
-Mobile app (React Native)
-
-📜 License
-This project is licensed under the MIT License - see LICENSE for details.
