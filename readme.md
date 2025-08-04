@@ -1,3 +1,4 @@
+```markdown
 # 🥊 UFC Fight Predictor - Machine Learning-Powered Bout Analysis
 
 > **Predict fight outcomes with 78% accuracy** using historical UFC stats and advanced ML techniques. Designed for MMA enthusiasts, fantasy players, and betting analysts.
@@ -47,20 +48,3 @@ graph LR
     B --> D[SQLite Database]
     C --> E[Historical Fight Data]
     D --> F[Fighter Profiles]
-Core Technologies:
-
-Predictive Model: XGBoost classifier trained on 5,000+ UFC fights (78% accuracy)
-
-Backend: Flask with REST API endpoints
-
-Frontend: React with Bootstrap and Recharts
-
-Database: SQLite with 1,000+ fighter profiles
-
-ML Operations: Cross-validation, feature importance tracking
-
-Key Differentiators:
-🔍 MMA-specific feature engineering
-📊 Dynamic confidence scoring
-🔄 Continuous model retraining
-📱 Mobile-responsive design
