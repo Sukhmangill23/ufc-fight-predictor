@@ -1,4 +1,3 @@
-```markdown
 # 🥊 UFC Fight Predictor - Machine Learning-Powered Bout Analysis
 
 > **Predict fight outcomes with 78% accuracy** using historical UFC stats and advanced ML techniques. Designed for MMA enthusiasts, fantasy players, and betting analysts.
@@ -41,10 +40,4 @@ Mixed Martial Arts predictions are notoriously difficult due to:
 
 ## ⚙️ Technical Architecture
 
-```mermaid
-graph LR
-    A[React Frontend] --> B[Flask REST API]
-    B --> C[XGBoost Model]
-    B --> D[SQLite Database]
-    C --> E[Historical Fight Data]
-    D --> F[Fighter Profiles]
+### System Flow
