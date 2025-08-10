@@ -1310,3 +1310,43 @@ html, body, #root {
     margin: 5px 0;
   }
 }
+/* Fighter Comparison */
+.comparison-tool {
+  padding: 20px;
+}
+
+.stats-card {
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+}
+
+.metric-card {
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+  height: 100%;
+}
+
+.value-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.progress {
+  background-color: #333;
+}
+
+.vs-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--ufc-red), var(--ufc-blue));
+  color: white;
+  font-weight: 800;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(210, 10, 10, 0.3),
+              0 0 15px rgba(10, 63, 210, 0.3);
+  border: 2px solid var(--bs-white);
+}

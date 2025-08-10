@@ -4,6 +4,7 @@ import VSBadge from './components/VSBadge';
 import FightDetails from './components/FightDetails';
 import PredictionResult from './components/PredictionResult';
 import PredictionInsights from './components/PredictionInsights';
+import FighterComparison from './components/FighterComparison'; // Import the new component
 
 import {
   getFighterStats,
@@ -23,7 +24,7 @@ function App() {
   const [titleBout, setTitleBout] = useState(false);
   const [prediction, setPrediction] = useState({});
   const [insights, setInsights] = useState(null);
-  const [activeTab, setActiveTab] = useState('predict'); // 'predict' or 'analytics'
+  const [activeTab, setActiveTab] = useState('predict'); // 'predict', 'analytics', or 'compare'
 
   const handleFighterSelect = async (fighter, corner) => {
     try {
@@ -107,9 +108,8 @@ function App() {
 
  return (
     <div className="overlay">
-      {/* Changed container to fluid and adjusted padding */}
       <div className="container-fluid p-0 h-100">
-        {/* Navigation Tabs - moved to top with better spacing */}
+        {/* Navigation Tabs */}
         <div className="tabs p-3 bg-dark">
           <button
             className={`tab-btn ${activeTab === 'predict' ? 'active' : ''}`}
@@ -123,22 +123,26 @@ function App() {
           >
             Analytics
           </button>
+          {/* New Comparison Tab */}
+          <button
+            className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`}
+            onClick={() => setActiveTab('compare')}
+          >
+            Compare Fighters
+          </button>
         </div>
 
-        {/* Main Content Area - now flex-grow */}
+        {/* Main Content Area */}
         <div className="flex-grow-1 overflow-auto p-3">
           {/* Prediction Tab */}
           {activeTab === 'predict' && (
             <div className="card h-100">
-              {/* Card Header - more compact */}
               <div className="card-header bg-dark py-2">
                 <h1 className="mb-0 h4"><i className="fas fa-fist-raised me-2"></i> UFC FIGHT PREDICTOR</h1>
               </div>
 
-              {/* Card Body - now flex column for better height management */}
               <div className="card-body d-flex flex-column p-3">
                 <div className="row flex-grow-1 mb-3">
-                  {/* Fighter Cards - equal height columns */}
                   <div className="col-md-5 d-flex flex-column">
                     <FighterCard
                       corner="red"
@@ -211,10 +215,22 @@ function App() {
             </div>
           )}
 
-          {/* Analytics Tab - now full height */}
+          {/* Analytics Tab */}
           {activeTab === 'analytics' && (
             <div className="h-100">
               <FighterAnalyticsPage />
+            </div>
+          )}
+
+          {/* New Comparison Tab */}
+          {activeTab === 'compare' && (
+            <div className="card">
+              <div className="card-header bg-dark">
+                <h1 className="mb-0">FIGHTER COMPARISON TOOL</h1>
+              </div>
+              <div className="card-body">
+                <FighterComparison />
+              </div>
             </div>
           )}
         </div>
