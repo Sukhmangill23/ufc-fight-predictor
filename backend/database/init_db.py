@@ -111,10 +111,19 @@ def init_database():
                         CURRENT_TIMESTAMP
                     )''')
 
+
     # Create indexes
     conn.execute("CREATE INDEX IF NOT EXISTS idx_fighters_name ON fighters (name)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_fights_date ON fights (Date)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_predictions_timestamp ON predictions (timestamp)")
+
+    conn.execute('''CREATE TABLE IF NOT EXISTS users
+                    (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )''')
 
     conn.commit()
     conn.close()

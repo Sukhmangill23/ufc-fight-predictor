@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 const FightDetails = ({ rounds, setRounds, titleBout, setTitleBout }) => {
   return (
     <div className="fight-details">

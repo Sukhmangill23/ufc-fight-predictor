@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+`import React, { useState } from 'react';
 import FighterCard from './components/FighterCard';
 import VSBadge from './components/VSBadge';
 import FightDetails from './components/FightDetails';
 import PredictionResult from './components/PredictionResult';
 import PredictionInsights from './components/PredictionInsights';
 import FighterComparison from './components/FighterComparison'; // Import the new component
+import { useAuth } from './context/AuthContext';
+import AuthPage from './pages/AuthPage';
+import LogoutButton from './components/LogoutButton';
+// <-- Import LogoutButton
 
 import {
   getFighterStats,
@@ -25,6 +29,15 @@ function App() {
   const [prediction, setPrediction] = useState({});
   const [insights, setInsights] = useState(null);
   const [activeTab, setActiveTab] = useState('predict'); // 'predict', 'analytics', or 'compare'
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!currentUser) {
+    return <AuthPage />;
+  }
 
   const handleFighterSelect = async (fighter, corner) => {
     try {
@@ -106,9 +119,44 @@ function App() {
     }
   };
 
- return (
+  return (
     <div className="overlay">
       <div className="container-fluid p-0 h-100">
+        {/* Top Navigation Bar */}
+        <div className="bg-dark p-3 d-flex justify-content-between align-items-center">
+<h1
+  style={{
+    background: 'linear-gradient(90deg, #b22721, #2640d3)', // red to blue gradient
+    color: 'white',
+    fontFamily: "'Orbitron', sans-serif",
+    fontWeight: '700',
+    fontSize: '2rem',
+    padding: '0.6em 1.8em',
+    borderRadius: '12px',
+    textAlign: 'center',
+    userSelect: 'none',
+    display: 'inline-block',
+    letterSpacing: '0.1em',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.3)', // subtle shadow for depth
+  }}
+>
+  UFC Predictor
+</h1>
+
+
+
+
+          {currentUser && (
+            <div className="d-flex align-items-center">
+              <span className="text-light me-3">
+                <i className="fas fa-user me-2"></i>
+                Welcome, User
+              </span>
+              <LogoutButton />
+            </div>
+          )}
+        </div>
+
         {/* Navigation Tabs */}
         <div className="tabs p-3 bg-dark">
           <button
@@ -138,7 +186,9 @@ function App() {
           {activeTab === 'predict' && (
             <div className="card h-100">
               <div className="card-header bg-dark py-2">
-                <h1 className="mb-0 h4"><i className="fas fa-fist-raised me-2"></i> UFC FIGHT PREDICTOR</h1>
+                <h1 className="mb-0 h4">
+                  <i className="fas fa-fist-raised me-2"></i> UFC FIGHT PREDICTOR
+                </h1>
               </div>
 
               <div className="card-body d-flex flex-column p-3">
@@ -184,7 +234,10 @@ function App() {
                   >
                     {prediction.loading ? (
                       <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                        ></span>
                         ANALYZING FIGHT...
                       </>
                     ) : (
@@ -240,3 +293,4 @@ function App() {
 }
 
 export default App;
+`

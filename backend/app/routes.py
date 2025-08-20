@@ -11,6 +11,9 @@ import random
 from ml.utils import get_fighter_stats, fill_missing_stats
 from collections import defaultdict
 
+from .services.auth_service import register_user, authenticate_user
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 main = Blueprint('main', __name__)
 
 # ---------------------------------------------------------------------------
@@ -49,6 +52,27 @@ model = joblib.load(model_path)
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
 
 
+
+
+# Add new routes
+@main.route('/register', methods=['POST', 'OPTIONS'])
+@jwt_required()
+def register():
+    if request.method == 'OPTIONS':
+        # Typically, just return a 200 OK with appropriate CORS headers
+        return '', 200
+    data = request.get_json()
+    if not data or 'username' not in data or 'password' not in data:
+        return jsonify({'error': 'Missing username or password'}), 400
+    return register_user(data['username'], data['password'])
+
+@main.route('/login', methods=['POST'])
+@jwt_required()
+def login():
+    data = request.get_json()
+    if not data or 'username' not in data or 'password' not in data:
+        return jsonify({'error': 'Missing username or password'}), 400
+    return authenticate_user(data['username'], data['password'])
 # ---------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # ---------------------------------------------------------------------------

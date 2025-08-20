@@ -6,17 +6,17 @@ const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="tabs mb-4">
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="tabs">
           <button
-            className={`tab-btn ${isLogin ? 'active' : ''}`}
+            className={`tab ${isLogin ? 'active' : ''}`}
             onClick={() => setIsLogin(true)}
           >
             Login
           </button>
           <button
-            className={`tab-btn ${!isLogin ? 'active' : ''}`}
+            className={`tab ${!isLogin ? 'active' : ''}`}
             onClick={() => setIsLogin(false)}
           >
             Register
@@ -24,17 +24,6 @@ const AuthPage = () => {
         </div>
 
         {isLogin ? <LoginForm /> : <RegisterForm />}
-
-        <div className="mt-4 text-center">
-          <button
-            className="btn btn-link"
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin
-              ? "Don't have an account? Register"
-              : "Already have an account? Login"}
-          </button>
-        </div>
       </div>
     </div>
   );

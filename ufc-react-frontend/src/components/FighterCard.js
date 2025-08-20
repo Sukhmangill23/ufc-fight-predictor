@@ -2,6 +2,7 @@
 import React from 'react';
 import SearchBar from './SearchBar';
 
+
 const FighterCard = ({ corner, stats, searchTerm, setSearchTerm, onSelectFighter }) => {
   const cornerClass = corner === 'red' ? 'red-corner' : 'blue-corner';
   const cornerTitle = corner === 'red' ? 'RED CORNER' : 'BLUE CORNER';
