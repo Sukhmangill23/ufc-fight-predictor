@@ -11,6 +11,7 @@ import {
   ArcElement
 } from 'chart.js';
 import { getFighterAnalyticsDetails, searchFighters } from '../services/api';
+import '../App.css';
 
 // Register Chart.js components
 ChartJS.register(
@@ -134,14 +135,14 @@ const FighterAnalyticsPage = () => {
   } : null;
 
   return (
-    <div className="container-fluid py-4" style={{ height: '100vh' }}>
+    <div className="container-fluid py-4 fighter-analytics-container">
       <div className="card h-100">
         <div className="card-header bg-dark">
           <h1 className="mb-0">FIGHTER ANALYTICS</h1>
           <p className="mb-0 text-light">Detailed performance statistics for UFC fighters</p>
         </div>
 
-        <div className="card-body" style={{ overflowY: 'auto' }}>
+        <div className="card-body fighter-card-body">
           {/* Search Section */}
           <div className="search-container mb-4" ref={searchRef}>
             <div className="input-group">
@@ -167,28 +168,12 @@ const FighterAnalyticsPage = () => {
             </div>
 
             {showSuggestions && suggestions.length > 0 && (
-              <div
-                className="suggestions-box mt-2 rounded"
-                style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  border: '1px solid #444',
-                  backgroundColor: '#333'
-                }}
-              >
+              <div className="suggestions-box mt-2 rounded">
                 {suggestions.map((fighter, index) => (
                   <div
                     key={index}
-                    className="p-2"
-                    style={{
-                      cursor: 'pointer',
-                      color: '#fff',
-                      borderBottom: '1px solid #444',
-                      transition: 'background-color 0.2s'
-                    }}
+                    className="p-2 suggestion-item"
                     onClick={() => handleSelectSuggestion(fighter)}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#444'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     {fighter}
                   </div>
@@ -208,7 +193,7 @@ const FighterAnalyticsPage = () => {
             <div className="fighter-analytics">
               <div className="row mb-4">
                 <div className="col-md-12">
-                  <div className="fighter-header text-center p-4 bg-dark rounded">
+                  <div className="fighter-header text-center p-4">
                     <h2 className="display-4">{fighterData.basic_stats.name}</h2>
                     <div className="d-flex justify-content-center mt-3">
                       <div className="stat-badge me-3">
@@ -236,28 +221,28 @@ const FighterAnalyticsPage = () => {
               <div className="row mb-4">
                 <div className="col-md-6">
                   <div className="card h-100">
-                    <div className="card-header bg-dark white-text">
+                    <div className="card-header bg-dark text-white">
                       <h4>Career Performance</h4>
                     </div>
                     <div className="card-body d-flex flex-column">
                       <div className="row text-center mb-3">
                         <div className="col-md-4">
-                          <div className="metric-value display-4" style={{ color: 'orange'}}>
+                          <div className="metric-value metric-total">
                             {fighterData.performance_metrics.total_fights}
                           </div>
-                          <div className="white-text">Total Fights</div>
+                          <div className="text-white">Total Fights</div>
                         </div>
                         <div className="col-md-4">
-                          <div className="metric-value display-4 text-success">
+                          <div className="metric-value metric-wins">
                             {fighterData.performance_metrics.wins}
                           </div>
-                          <div className="white-text">Wins</div>
+                          <div className="text-white">Wins</div>
                         </div>
                         <div className="col-md-4">
-                          <div className="metric-value display-4 text-danger">
+                          <div className="metric-value metric-losses">
                             {fighterData.performance_metrics.losses}
                           </div>
-                          <div className="white-text">Losses</div>
+                          <div className="text-white">Losses</div>
                         </div>
                       </div>
                       {performanceChartData && (
@@ -280,28 +265,28 @@ const FighterAnalyticsPage = () => {
 
                 <div className="col-md-6">
                   <div className="card h-100">
-                    <div className="card-header bg-dark white-text">
+                    <div className="card-header bg-dark text-white">
                       <h4>Win Methods</h4>
                     </div>
                     <div className="card-body d-flex flex-column">
                       <div className="row text-center mb-3">
                         <div className="col-md-4">
-                          <div className="metric-value display-4 text-danger">
+                          <div className="metric-value metric-ko">
                             {fighterData.performance_metrics.ko_wins}
                           </div>
-                          <div className="white-text">KO/TKO</div>
+                          <div className="text-white">KO/TKO</div>
                         </div>
                         <div className="col-md-4">
-                          <div className="metric-value display-4 text-primary">
+                          <div className="metric-value metric-sub">
                             {fighterData.performance_metrics.sub_wins}
                           </div>
-                          <div className="white-text">Submissions</div>
+                          <div className="text-white">Submissions</div>
                         </div>
                         <div className="col-md-4">
-                          <div className="metric-value display-4 text-info">
+                          <div className="metric-value metric-dec">
                             {fighterData.performance_metrics.decision_wins}
                           </div>
-                          <div className="white-text">Decisions</div>
+                          <div className="text-white">Decisions</div>
                         </div>
                       </div>
                       {winMethodChartData && (
@@ -330,11 +315,11 @@ const FighterAnalyticsPage = () => {
                 <div className="col-md-12">
                   <div className="card">
                     <div className="card-header bg-dark">
-                    <h4 className="white-text">Recent Fight History</h4>
+                      <h4 className="text-white">Recent Fight History</h4>
                     </div>
                     <div className="card-body">
                       <div className="table-responsive">
-                        <table className="table table-dark table-striped">
+                        <table className="table table-dark table-striped fight-table">
                           <thead>
                             <tr>
                               <th>Date</th>
@@ -375,10 +360,10 @@ const FighterAnalyticsPage = () => {
 
           {/* Empty State */}
           {!fighterData && !loading && (
-            <div className="text-center py-5">
-              <i className="fas fa-user-ninja fa-5x mb-4" style={{ color: '#ffffff' }}></i>
-              <h3 style={{ color: '#ffffff' }}>Search for a Fighter</h3>
-              <p style={{ color: '#ffffff' }}>
+            <div className="text-center py-5 empty-state">
+              <i className="fas fa-user-ninja fa-5x mb-4"></i>
+              <h3>Search for a Fighter</h3>
+              <p>
                 Enter a fighter's name to view detailed performance analytics and fight history
               </p>
             </div>

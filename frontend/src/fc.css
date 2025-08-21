@@ -644,3 +644,44 @@
 .blue-highlight {
   color: #0a4fd2;
 }
+
+.radar-container {
+  position: relative;
+  width: var(--radar-size, 400px);
+  height: var(--radar-size, 400px);
+  margin: 0 auto;
+}
+
+.radar-legend {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.legend-color-box {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+}
+
+.red-legend-box {
+  background-color: rgba(192, 10, 10, 0.4);
+}
+
+.blue-legend-box {
+  background-color: rgba(10, 79, 212, 0.4);
+}
+
+.legend-text {
+  color: #fff;
+  font-size: 12px;
+}

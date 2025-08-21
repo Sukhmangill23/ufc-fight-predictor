@@ -106,9 +106,9 @@ const FighterComparison = () => {
     const maxValues = {};
     radarStats.forEach(stat => {
       maxValues[stat.key] = Math.max(
-        stats1[stat.key] || 0,
-        stats2[stat.key] || 0,
-        1 // Ensure at least 1 to avoid division by zero
+          stats1[stat.key] || 0,
+          stats2[stat.key] || 0,
+          1 // Ensure at least 1 to avoid division by zero
       );
     });
 
@@ -119,114 +119,96 @@ const FighterComparison = () => {
     const angle = (2 * Math.PI) / points;
 
     return (
-      <div style={{ position: 'relative', width: size, height: size, margin: '0 auto' }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          {/* Grid lines */}
-          {[0.25, 0.5, 0.75, 1].map(level => (
-            <circle
-              key={level}
-              cx={center}
-              cy={center}
-              r={radius * level}
-              fill="none"
-              stroke="#333"
-              strokeWidth="0.5"
+        <div className="radar-container" style={{width: size, height: size}}>
+          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            {/* Grid lines */}
+            {[0.25, 0.5, 0.75, 1].map(level => (
+                <circle
+                    key={level}
+                    cx={center}
+                    cy={center}
+                    r={radius * level}
+                    fill="none"
+                    stroke="#333"
+                    strokeWidth="0.5"
+                />
+            ))}
+
+            {/* Axes */}
+            {radarStats.map((stat, i) => {
+              const x = center + radius * Math.cos(i * angle - Math.PI / 2);
+              const y = center + radius * Math.sin(i * angle - Math.PI / 2);
+              return (
+                  <line
+                      key={i}
+                      x1={center}
+                      y1={center}
+                      x2={x}
+                      y2={y}
+                      stroke="#444"
+                      strokeWidth="0.5"
+                  />
+              );
+            })}
+
+            {/* Fighter 1 area */}
+            <polygon
+                points={radarStats.map((stat, i) => {
+                  const value = (stats1[stat.key] || 0) / maxValues[stat.key];
+                  const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
+                  const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
+                  return `${x},${y}`;
+                }).join(' ')}
+                fill="rgba(192, 10, 10, 0.4)"
+                stroke="#c00a0a"
+                strokeWidth="2"
             />
-          ))}
 
-          {/* Axes */}
-          {radarStats.map((stat, i) => {
-            const x = center + radius * Math.cos(i * angle - Math.PI / 2);
-            const y = center + radius * Math.sin(i * angle - Math.PI / 2);
-            return (
-              <line
-                key={i}
-                x1={center}
-                y1={center}
-                x2={x}
-                y2={y}
-                stroke="#444"
-                strokeWidth="0.5"
-              />
-            );
-          })}
+            {/* Fighter 2 area */}
+            <polygon
+                points={radarStats.map((stat, i) => {
+                  const value = (stats2[stat.key] || 0) / maxValues[stat.key];
+                  const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
+                  const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
+                  return `${x},${y}`;
+                }).join(' ')}
+                fill="rgba(10, 79, 212, 0.4)"
+                stroke="#0a4fd2"
+                strokeWidth="2"
+            />
 
-          {/* Fighter 1 area */}
-          <polygon
-            points={radarStats.map((stat, i) => {
-              const value = (stats1[stat.key] || 0) / maxValues[stat.key];
-              const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
-              const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
-              return `${x},${y}`;
-            }).join(' ')}
-            fill="rgba(192, 10, 10, 0.4)"
-            stroke="#c00a0a"
-            strokeWidth="2"
-          />
+            {/* Labels */}
+            {radarStats.map((stat, i) => {
+              const x = center + (radius + 15) * Math.cos(i * angle - Math.PI / 2);
+              const y = center + (radius + 15) * Math.sin(i * angle - Math.PI / 2);
+              return (
+                  <text
+                      key={i}
+                      x={x}
+                      y={y}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#fff"
+                      fontSize="10"
+                  >
+                    {stat.name}
+                  </text>
+              );
+            })}
+          </svg>
 
-          {/* Fighter 2 area */}
-          <polygon
-            points={radarStats.map((stat, i) => {
-              const value = (stats2[stat.key] || 0) / maxValues[stat.key];
-              const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
-              const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
-              return `${x},${y}`;
-            }).join(' ')}
-            fill="rgba(10, 79, 212, 0.4)"
-            stroke="#0a4fd2"
-            strokeWidth="2"
-          />
-
-          {/* Labels */}
-          {radarStats.map((stat, i) => {
-            const x = center + (radius + 15) * Math.cos(i * angle - Math.PI / 2);
-            const y = center + (radius + 15) * Math.sin(i * angle - Math.PI / 2);
-            return (
-              <text
-                key={i}
-                x={x}
-                y={y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fill="#fff"
-                fontSize="10"
-              >
-                {stat.name}
-              </text>
-            );
-          })}
-        </svg>
-
-        {/* Legend */}
-        <div style={{
-          position: 'absolute',
-          bottom: 10,
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '20px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{
-              width: '15px',
-              height: '15px',
-              backgroundColor: 'rgba(192, 10, 10, 0.4)',
-              marginRight: '5px'
-            }}></div>
-            <span style={{ color: '#fff', fontSize: '12px' }}>{fighter1}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{
-              width: '15px',
-              height: '15px',
-              backgroundColor: 'rgba(10, 79, 212, 0.4)',
-              marginRight: '5px'
-            }}></div>
-            <span style={{ color: '#fff', fontSize: '12px' }}>{fighter2}</span>
+          {/* Legend */}
+          <div className="radar-legend">
+            <div className="legend-item">
+              <div className="legend-color-box red-legend-box"></div>
+              <span className="legend-text">{fighter1}</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color-box blue-legend-box"></div>
+              <span className="legend-text">{fighter2}</span>
+            </div>
           </div>
         </div>
-      </div>
     );
   };
 

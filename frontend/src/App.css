@@ -258,8 +258,7 @@ body {
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: var(--bs-white);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 5px var(--ufc-blue);
   outline: none;
   background: rgba(50, 50, 50, 0.8);
 }
@@ -420,7 +419,6 @@ input::selection, textarea::selection {
 
 .search-input:focus {
   border-color: var(--bs-white);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
   outline: none;
   background: rgba(50, 50, 50, 0.8);
   color: var(--ufc-text-light);
@@ -1160,11 +1158,7 @@ html, body, #root {
   font-size: 16px;
 }
 
-.form-control:focus, .form-select:focus {
-  border-color: var(--ufc-gold);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
-  outline: none;
-}
+
 
 /* Prediction Button */
 .btn {
@@ -1349,4 +1343,117 @@ html, body, #root {
   box-shadow: 0 0 10px rgba(210, 10, 10, 0.3),
               0 0 15px rgba(10, 63, 210, 0.3);
   border: 2px solid var(--bs-white);
+}
+
+/* FighterAnalyticsPage.css */
+
+/* Main container */
+.fighter-analytics-container {
+  height: 100vh;
+}
+
+/* Card body with scroll */
+.fighter-card-body {
+  overflow-y: auto;
+}
+
+/* Search suggestions */
+.suggestions-box {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  background-color: var(--dark-bg);
+}
+
+.suggestion-item {
+  cursor: pointer;
+  color: var(--text-light);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Fighter header */
+.fighter-header {
+  background-color: var(--dark-bg);
+  border-radius: 0.375rem;
+}
+
+.stat-badge {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+.stat-label {
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+/* Metric values */
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.metric-total {
+  color: var(--metric-total);
+}
+
+.metric-wins {
+  color: var(--metric-wins);
+}
+
+.metric-losses {
+  color: var(--metric-losses);
+}
+
+.metric-ko {
+  color: var(--metric-ko);
+}
+
+.metric-sub {
+  color: var(--metric-sub);
+}
+
+.metric-dec {
+  color: var(--metric-dec);
+}
+
+/* Table styles */
+.fight-table {
+  background-color: var(--dark-bg);
+}
+
+.fight-table thead th {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Empty state */
+.empty-state {
+  color: var(--text-light);
+}
+
+/* Color variables for theming */
+:root {
+  --dark-bg: #333;
+  --darker-bg: #222;
+  --text-light: #fff;
+  --border-color: #444;
+  --hover-bg: #444;
+  --accent-color: orange;
+  --metric-total: orange;
+  --metric-wins: #28a745; /* Green for wins */
+  --metric-losses: #dc3545; /* Red for losses */
+  --metric-ko: #dc3545; /* Red for KO */
+  --metric-sub: #007bff; /* Blue for submissions */
+  --metric-dec: #17a2b8; /* Teal for decisions */
 }
