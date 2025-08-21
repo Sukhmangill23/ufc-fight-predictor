@@ -1,0 +1,101 @@
+/* Global Background */
+.app-background {
+  background-color: #1b2b50; /* lighter navy */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Title */
+.app-title {
+  background: linear-gradient(90deg, #b22721, #2640d3);
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  padding: 0.6em 1.8em;
+  border-radius: 12px;
+  text-align: center;
+  user-select: none;
+  display: inline-block;
+  letter-spacing: 0.1em;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  background-color: #2c3e75;
+  color: white;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+  background-color: #3d57a1;
+}
+
+/* Predictor Panel */
+.predictor-panel {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #0f1a30; /* darker navy panel */
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  padding: 1.5rem;
+}
+
+.predictor-header {
+  background-color: #111d38;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.predictor-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: white;
+}
+
+/* Fighter Flex Layout */
+.fighter-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+/* Predict Button */
+.predict-btn {
+  width: 100%;
+  padding: 0.8em;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #c00a0a, #0a4fd2);
+  border: none;
+  border-radius: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.predict-btn:hover {
+  opacity: 0.9;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .fighter-flex {
+    gap: 1rem;
+  }
+}
