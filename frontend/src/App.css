@@ -2,19 +2,18 @@
 
 /* Updated Color Variables for Better Contrast */
 :root {
-  --ufc-red: #ff2a2a;
-  --ufc-blue: #3a7bff;
+  --ufc-red: #e74c3c;     /* Keep for red corner but less intense */
+  --ufc-blue: #3498db;    /* Keep for blue corner but less intense */
   --ufc-light: #ffffff;
-  --ufc-dark-bg: #0f0f0f;
+  --ufc-dark-bg: #0a0a0a;
   --ufc-card-bg: #1a1a1a;
   --ufc-card-hover: #252525;
-  --ufc-border: #444444;
+  --ufc-border: #333333;
   --ufc-text: #eeeeee;
   --ufc-text-light: #ffffff;
-  --ufc-gold: #f0c048; ;
+  --ufc-gold: #f0c048;
   --ufc-gray: #6a7989;
 }
-
 
 /* Global Styles */
 * {
@@ -35,15 +34,13 @@
 
 body {
   font-family: 'Montserrat', 'Poppins', sans-serif;
-  background: var(--ufc-dark-bg);
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(30, 30, 30, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%),
-    linear-gradient(to bottom, #0a0a0a, #1a1a1a);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   background-attachment: fixed;
   color: var(--ufc-text);
   line-height: 1.7;
   min-height: 100vh;
 }
+
 
 /* Container Optimization */
 .container {
@@ -54,17 +51,17 @@ body {
 /* Card Design */
 .card {
   background: var(--ufc-card-bg);
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   border: 1px solid var(--ufc-border);
 }
 
 .card-header {
-  background: linear-gradient(90deg, var(--ufc-red) 0%, var(--ufc-blue) 100%);
+  background: #1a1a1a;
   padding: 1.2rem;
   text-align: center;
-  border-bottom: 3px solid var(--bs-white);
+  border-bottom: 1px solid var(--ufc-border);
 }
 
 .card-header h1 {
@@ -105,13 +102,9 @@ body {
   background: var(--ufc-card-bg);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   border: 1px solid var(--ufc-border);
-  flex: 1;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
 }
 
 .fighter-card:hover {
@@ -127,6 +120,7 @@ body {
 .blue-corner {
   border-top: 4px solid var(--ufc-blue);
 }
+
 
 /* Corner Title */
 .corner-title {
@@ -211,14 +205,13 @@ body {
   justify-content: center;
   width: 70px;
   height: 70px;
-  background: linear-gradient(135deg, var(--ufc-red), var(--ufc-blue));
+  background: #2c3e50;
   color: white;
   font-weight: 800;
   font-size: 1.8rem;
   border-radius: 50%;
-  box-shadow: 0 0 20px rgba(210, 10, 10, 0.3),
-              0 0 30px rgba(10, 63, 210, 0.3);
-  border: 3px solid var(--ufc-gold);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--ufc-gold);
 }
 
 /* Fight Details */
@@ -250,11 +243,10 @@ body {
   background: rgba(40, 40, 40, 0.8);
   border: 1px solid var(--ufc-border);
   color: var(--ufc-text-light);
-  padding: 10px 12px;
+  padding: 12px 15px;
   border-radius: 8px;
-  transition: all 0.3s;
-  font-size: 1rem;
   width: 100%;
+  font-size: 16px;
 }
 
 .form-control:focus, .form-select:focus {
@@ -291,11 +283,12 @@ input::selection, textarea::selection {
 }
 
 /* Prediction Button */
+/* In App.css, update the predict button */
 .btn-predict {
-  background: linear-gradient(90deg, var(--ufc-red), var(--ufc-blue));
+  background: linear-gradient(90deg, #444, #666);
   border: none;
   border-radius: 8px;
-  padding: 14px;
+  padding: 15px;
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 1px;
@@ -305,8 +298,6 @@ input::selection, textarea::selection {
   width: 100%;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   margin-top: 15px;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn-predict:hover {
@@ -1038,9 +1029,9 @@ html, body, #root {
 }
 
 .tab-btn.active {
-  background: linear-gradient(90deg, var(--ufc-red) 0%, var(--ufc-blue) 100%);
+  background: linear-gradient(90deg, #444, #666);
   color: white;
-  box-shadow: 0 0 15px rgba(202, 10, 10, 0.5);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
 .tab-btn:hover:not(.active) {
@@ -1201,8 +1192,7 @@ html, body, #root {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  border: 4px solid;
-  border-image: linear-gradient(90deg, var(--ufc-red), var(--ufc-blue)) 1;
+  border: 2px solid var(--ufc-border);
   margin-bottom: 20px;
 }
 
@@ -1233,6 +1223,8 @@ html, body, #root {
   font-weight: 700;
   font-size: 18px;
   text-align: center;
+  background: rgba(40, 40, 40, 0.8);
+  border: 1px solid var(--ufc-border);
 }
 
 .prob-red {
@@ -1456,4 +1448,137 @@ html, body, #root {
   --metric-ko: #dc3545; /* Red for KO */
   --metric-sub: #007bff; /* Blue for submissions */
   --metric-dec: #17a2b8; /* Teal for decisions */
+}
+
+/* In App.css, add logout button styles */
+.btn-logout {
+  background: linear-gradient(90deg, #444, #666);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-logout:hover {
+  background: linear-gradient(90deg, #555, #777);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-logout:active {
+  transform: translateY(1px);
+}
+
+/* In App.css, add analyze button styles */
+.btn-analyze {
+  background: linear-gradient(90deg, #444, #666);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  min-width: 100px; /* Ensure consistent width */
+}
+
+.btn-analyze:hover {
+  background: linear-gradient(90deg, #555, #777);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-analyze:active {
+  transform: translateY(1px);
+}
+
+.btn-analyze:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form Input and Select Styling */
+.form-control, .form-select {
+  background-color: rgba(40, 40, 40, 0.8) !important;
+  border: 1px solid #555 !important;
+  color: #ffffff !important;
+  padding: 12px 15px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: rgba(50, 50, 50, 0.8) !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25) !important;
+  color: #ffffff !important;
+  outline: none;
+}
+
+/* Placeholder styling */
+.form-control::placeholder {
+  color: #aaaaaa !important;
+  opacity: 1;
+}
+
+/* Select dropdown options styling */
+.form-select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Checkbox styling */
+.form-check-input {
+  background-color: rgba(40, 40, 40, 0.8);
+  border: 1px solid #555;
+}
+
+.form-check-input:checked {
+  background-color: #d4af37;
+  border-color: #d4af37;
+}
+
+.form-check-label {
+  color: #e0e0e0;
+  margin-left: 8px;
+}
+
+/* Search input specific styling */
+.search-input {
+  background-color: rgba(40, 40, 40, 0.8) !important;
+  border: 1px solid #555 !important;
+  color: #ffffff !important;
+  padding: 12px 15px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+}
+
+.search-input::placeholder {
+  color: #aaaaaa !important;
+}
+
+/* Fix for the number of rounds dropdown */
+select.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+  padding-right: 45px;
+}
+
+/* For the fight details section specifically */
+.fight-details .form-control,
+.fight-details .form-select {
+  background-color: rgba(40, 40, 40, 0.9) !important;
 }

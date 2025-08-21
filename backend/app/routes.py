@@ -8,7 +8,7 @@ import traceback
 from sklearn.metrics import confusion_matrix, accuracy_score
 from ml.utils import get_fighter_stats, fill_missing_stats
 import random
-from ml.utils import get_fighter_stats, fill_missing_stats
+
 from collections import defaultdict
 
 from .services.auth_service import register_user, authenticate_user

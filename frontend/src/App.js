@@ -124,9 +124,10 @@ function App() {
       <div className="container-fluid p-0 h-100">
         {/* Top Navigation Bar */}
         <div className="bg-dark p-3 d-flex justify-content-between align-items-center">
+
 <h1
   style={{
-    background: 'linear-gradient(90deg, #b22721, #2640d3)', // red to blue gradient
+    background: 'linear-gradient(90deg, #333, #666, #999)',
     color: 'white',
     fontFamily: "'Orbitron', sans-serif",
     fontWeight: '700',
@@ -137,7 +138,7 @@ function App() {
     userSelect: 'none',
     display: 'inline-block',
     letterSpacing: '0.1em',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.3)', // subtle shadow for depth
+    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
   }}
 >
   UFC Predictor
@@ -222,30 +223,25 @@ function App() {
                 />
 
                 <div className="mt-auto">
-                  <button
-                    className="btn btn-lg w-100"
-                    style={{
-                      background: 'linear-gradient(to right, #c00a0a, #0a4fd2)',
-                      color: 'white',
-                      fontWeight: 'bold'
-                    }}
-                    onClick={handlePredict}
-                    disabled={prediction.loading}
-                  >
-                    {prediction.loading ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                        ></span>
-                        ANALYZING FIGHT...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-bolt me-2"></i> PREDICT WINNER
-                      </>
-                    )}
-                  </button>
+        <button
+  className="btn-predict"
+  onClick={handlePredict}
+  disabled={prediction.loading}
+>
+  {prediction.loading ? (
+    <>
+      <span
+        className="spinner-border spinner-border-sm me-2"
+        role="status"
+      ></span>
+      ANALYZING FIGHT...
+    </>
+  ) : (
+    <>
+      <i className="fas fa-bolt me-2"></i> PREDICT WINNER
+    </>
+  )}
+</button>
 
                   <PredictionResult prediction={prediction} />
 

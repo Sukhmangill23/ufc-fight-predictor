@@ -154,17 +154,17 @@ const FighterAnalyticsPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => searchTerm.length > 2 && setShowSuggestions(true)}
               />
-              <button
-                className="btn btn-danger"
-                onClick={handleSearch}
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="spinner-border spinner-border-sm" role="status"></span>
-                ) : (
-                  'Analyze'
-                )}
-              </button>
+<button
+  className="btn-analyze"
+  onClick={handleSearch}
+  disabled={loading}
+>
+  {loading ? (
+    <span className="spinner-border spinner-border-sm" role="status"></span>
+  ) : (
+    'Analyze'
+  )}
+</button>
             </div>
 
             {showSuggestions && suggestions.length > 0 && (
