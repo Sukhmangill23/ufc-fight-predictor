@@ -56,7 +56,6 @@ DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
 
 # Add new routes
 @main.route('/register', methods=['POST', 'OPTIONS'])
-@jwt_required()
 def register():
     if request.method == 'OPTIONS':
         # Typically, just return a 200 OK with appropriate CORS headers
@@ -67,7 +66,6 @@ def register():
     return register_user(data['username'], data['password'])
 
 @main.route('/login', methods=['POST'])
-@jwt_required()
 def login():
     data = request.get_json()
     if not data or 'username' not in data or 'password' not in data:
