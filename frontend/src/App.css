@@ -272,24 +272,19 @@ input::selection, textarea::selection {
 /* Prediction Button */
 /* In App.css, update the predict button */
 .btn-predict {
-  background: linear-gradient(90deg, #444, #666);
-  border: none;
-  border-radius: 8px;
-  padding: 15px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: white;
-  text-transform: uppercase;
-  transition: all 0.3s;
-  width: 100%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  margin-top: 15px;
+  background: var(--ufc-card);
+  border: 1px solid var(--ufc-border);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 12px;
+  padding: 12px 20px;
+  width: 100%; /* optional: makes it full width like cards */
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .btn-predict:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  background: #1a1a1a; /* slightly lighter/darker than --ufc-card */
+  transform: translateY(-2px);
 }
 
 .btn-predict:active {
@@ -1565,7 +1560,7 @@ select.form-select {
 
 /* Background cage image */
 .app-background {
-  background: url('images/as2.jpg')  no-repeat center center fixed;
+  background: url('images/pic1.jpg.avif')  no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
   display: flex;
@@ -1655,4 +1650,88 @@ select.form-select {
   width: 100%;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   overflow: hidden;
+}
+/* Limit the main predictor card */
+.card.w-100 {
+  max-width: 1000px;   /* narrower */
+  margin: 0 auto;      /* center horizontally */
+  min-height: 650px;   /* taller */
+}
+
+.fighter-card {
+  min-height: 320px;       /* gives breathing room */
+  max-width: 420px;        /* stops them from being too wide */
+  margin: 0 auto;          /* centers if smaller than column */
+  padding: 25px;           /* more breathing room */
+}
+
+.search-input {
+  font-size: 1.05rem;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+}
+
+
+/* Add these styles to your existing App.css */
+
+/* Analytics page specific styles */
+.fighter-analytics-container {
+  padding: 20px;
+  width: 100%;
+}
+
+/* Comparison tool specific styles */
+.fighter-comparison {
+  background: #0a0a0a;
+  padding: 20px;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.comparison-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Card adjustments for both pages */
+.card.w-100 {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Ensure proper spacing */
+.card-body {
+  padding: 25px;
+}
+
+/* Table responsiveness */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Search bar adjustments */
+.search-container {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Main container adjustments */
+.main-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  width: 100%;
 }

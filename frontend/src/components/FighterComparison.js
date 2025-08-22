@@ -224,6 +224,8 @@ const FighterComparison = () => {
     ];
 
     return (
+
+
       <div className="advantages-container">
         {advantages.map(adv => {
           const advantage = calculateAdvantage(stats1[adv.key], stats2[adv.key]);

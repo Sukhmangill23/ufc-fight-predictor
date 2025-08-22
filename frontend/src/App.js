@@ -251,16 +251,10 @@ function App() {
   <FighterAnalyticsPage />
 )}
 
-          {activeTab === 'compare' && (
-              <div className="card w-100">
-                <div className="card-header bg-dark">
-                  <h1 className="mb-0">FIGHTER COMPARISON TOOL</h1>
-                </div>
-                <div className="card-body">
-                  <FighterComparison/>
-                </div>
-              </div>
-          )}
+
+{activeTab === 'compare' && (
+  <FighterComparison />
+)}
         </div>
       </div>
   );
