@@ -10,6 +10,7 @@ import AuthPage from './pages/AuthPage';
 import LogoutButton from './components/LogoutButton';
 // <-- Import LogoutButton
 
+
 import {
   getFighterStats,
   predictFight,
@@ -20,6 +21,7 @@ import './App.css';
 import FighterAnalyticsPage from './pages/AnalyticsPage';
 
 function App() {
+
   const [redFighter, setRedFighter] = useState('');
   const [blueFighter, setBlueFighter] = useState('');
   const [redStats, setRedStats] = useState(null);
@@ -28,15 +30,15 @@ function App() {
   const [titleBout, setTitleBout] = useState(false);
   const [prediction, setPrediction] = useState({});
   const [insights, setInsights] = useState(null);
-  const [activeTab, setActiveTab] = useState('predict'); // 'predict', 'analytics', or 'compare'
+  const [activeTab, setActiveTab] = useState('predict');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { currentUser, loading } = useAuth();
-
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
 
   if (!currentUser) {
-    return <AuthPage />;
+    return <AuthPage/>;
   }
 
   const handleFighterSelect = async (fighter, corner) => {
@@ -60,25 +62,25 @@ function App() {
     } catch (error) {
       console.error('Error fetching fighter stats:', error);
       if (corner === 'red') {
-        setRedStats({ name: fighter });
+        setRedStats({name: fighter});
       } else {
-        setBlueStats({ name: fighter });
+        setBlueStats({name: fighter});
       }
     }
   };
 
   const handlePredict = async () => {
     if (!redFighter || !blueFighter) {
-      setPrediction({ error: 'Please select both fighters!' });
+      setPrediction({error: 'Please select both fighters!'});
       return;
     }
 
     if (redFighter === blueFighter) {
-      setPrediction({ error: 'Please select two different fighters!' });
+      setPrediction({error: 'Please select two different fighters!'});
       return;
     }
 
-    setPrediction({ loading: true });
+    setPrediction({loading: true});
     setInsights(null);
 
     try {
@@ -115,176 +117,152 @@ function App() {
         errorMsg = error.message;
       }
 
-      setPrediction({ error: errorMsg });
+      setPrediction({error: errorMsg});
     }
   };
-
   return (
-    <div className="overlay">
-      <div className="container-fluid p-0 h-100">
-        {/* Top Navigation Bar */}
-        <div className="bg-dark p-3 d-flex justify-content-between align-items-center">
+      <div className="app-background">
+        {/* Sidebar */}
+        <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <button className="close-btn"
+                  onClick={() => setSidebarOpen(false)}>×
+          </button>
+          <nav>
+            <button onClick={() => {
+              setActiveTab('predict');
+              setSidebarOpen(false);
+            }}>
+              Predict Fight
+            </button>
+            <button onClick={() => {
+              setActiveTab('analytics');
+              setSidebarOpen(false);
+            }}>
+              Analytics
+            </button>
+            <button onClick={() => {
+              setActiveTab('compare');
+              setSidebarOpen(false);
+            }}>
+              Compare Fighters
+            </button>
+            <LogoutButton/>
+          </nav>
+        </div>
 
-<h1
-  style={{
-    background: 'linear-gradient(90deg, #333, #666, #999)',
-    color: 'white',
-    fontFamily: "'Orbitron', sans-serif",
-    fontWeight: '700',
-    fontSize: '2rem',
-    padding: '0.6em 1.8em',
-    borderRadius: '12px',
-    textAlign: 'center',
-    userSelect: 'none',
-    display: 'inline-block',
-    letterSpacing: '0.1em',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-  }}
->
-  UFC Predictor
-</h1>
-
-
-
-
+        {/* Top Bar */}
+        <div className="top-bar">
+          <button className="hamburger" onClick={() => setSidebarOpen(true)}>☰
+          </button>
+          <h1 className="app-title">UFC Predictor</h1>
           {currentUser && (
-            <div className="d-flex align-items-center">
-              <span className="text-light me-3">
-                <i className="fas fa-user me-2"></i>
-                Welcome, User
-              </span>
-              <LogoutButton />
-            </div>
+              <span className="welcome-text">
+          <i className="fas fa-user me-2"></i>
+          Welcome, User
+        </span>
           )}
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="tabs p-3 bg-dark">
-          <button
-            className={`tab-btn ${activeTab === 'predict' ? 'active' : ''}`}
-            onClick={() => setActiveTab('predict')}
-          >
-            Predict Fight
-          </button>
-          <button
-            className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => setActiveTab('analytics')}
-          >
-            Analytics
-          </button>
-          {/* New Comparison Tab */}
-          <button
-            className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`}
-            onClick={() => setActiveTab('compare')}
-          >
-            Compare Fighters
-          </button>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-grow-1 overflow-auto p-3">
-          {/* Prediction Tab */}
+        {/* Centered Content */}
+        <div className="main-container">
           {activeTab === 'predict' && (
-            <div className="card h-100">
-              <div className="card-header bg-dark py-2">
-                <h1 className="mb-0 h4">
-                  <i className="fas fa-fist-raised me-2"></i> UFC FIGHT PREDICTOR
-                </h1>
-              </div>
-
-              <div className="card-body d-flex flex-column p-3">
-                <div className="row flex-grow-1 mb-3">
-                  <div className="col-md-5 d-flex flex-column">
-                    <FighterCard
-                      corner="red"
-                      stats={redStats}
-                      onSelectFighter={handleFighterSelect}
-                    />
-                  </div>
-
-                  <div className="col-md-2 d-flex align-items-center justify-content-center">
-                    <VSBadge />
-                  </div>
-
-                  <div className="col-md-5 d-flex flex-column">
-                    <FighterCard
-                      corner="blue"
-                      stats={blueStats}
-                      onSelectFighter={handleFighterSelect}
-                    />
-                  </div>
+              <div className="card w-100">
+                <div className="card-header bg-dark py-2">
+                  <h1 className="mb-0 h4">
+                    <i className="fas fa-fist-raised me-2"></i> UFC FIGHT
+                    PREDICTOR
+                  </h1>
                 </div>
 
-                <FightDetails
-                  rounds={rounds}
-                  setRounds={setRounds}
-                  titleBout={titleBout}
-                  setTitleBout={setTitleBout}
-                />
-
-                <div className="mt-auto">
-        <button
-  className="btn-predict"
-  onClick={handlePredict}
-  disabled={prediction.loading}
->
-  {prediction.loading ? (
-    <>
-      <span
-        className="spinner-border spinner-border-sm me-2"
-        role="status"
-      ></span>
-      ANALYZING FIGHT...
-    </>
-  ) : (
-    <>
-      <i className="fas fa-bolt me-2"></i> PREDICT WINNER
-    </>
-  )}
-</button>
-
-                  <PredictionResult prediction={prediction} />
-
-                  {insights && (
-                    <PredictionInsights
-                      insights={insights}
-                      redFighter={redFighter}
-                      blueFighter={blueFighter}
-                    />
-                  )}
-
-                  {prediction.error && (
-                    <div className="alert alert-danger mt-3">
-                      <i className="fas fa-exclamation-triangle me-2"></i>
-                      {prediction.error}
+                <div className="card-body d-flex flex-column p-3">
+                  <div className="row flex-grow-1 mb-3">
+                    <div className="col-md-5 d-flex flex-column">
+                      <FighterCard
+                          corner="red"
+                          stats={redStats}
+                          onSelectFighter={handleFighterSelect}
+                      />
                     </div>
-                  )}
+
+                    <div
+                        className="col-md-2 d-flex align-items-center justify-content-center">
+                      <VSBadge/>
+                    </div>
+
+                    <div className="col-md-5 d-flex flex-column">
+                      <FighterCard
+                          corner="blue"
+                          stats={blueStats}
+                          onSelectFighter={handleFighterSelect}
+                      />
+                    </div>
+                  </div>
+
+                  <FightDetails
+                      rounds={rounds}
+                      setRounds={setRounds}
+                      titleBout={titleBout}
+                      setTitleBout={setTitleBout}
+                  />
+
+                  <div className="mt-auto">
+                    <button
+                        className="btn-predict"
+                        onClick={handlePredict}
+                        disabled={prediction.loading}
+                    >
+                      {prediction.loading ? (
+                          <>
+                    <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                    ></span>
+                            ANALYZING FIGHT...
+                          </>
+                      ) : (
+                          <>
+                            <i className="fas fa-bolt me-2"></i> PREDICT WINNER
+                          </>
+                      )}
+                    </button>
+
+                    <PredictionResult prediction={prediction}/>
+
+                    {insights && (
+                        <PredictionInsights
+                            insights={insights}
+                            redFighter={redFighter}
+                            blueFighter={blueFighter}
+                        />
+                    )}
+
+                    {prediction.error && (
+                        <div className="alert alert-danger mt-3">
+                          <i className="fas fa-exclamation-triangle me-2"></i>
+                          {prediction.error}
+                        </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
           )}
 
-          {/* Analytics Tab */}
-          {activeTab === 'analytics' && (
-            <div className="h-100">
-              <FighterAnalyticsPage />
-            </div>
-          )}
+{activeTab === 'analytics' && (
+  <FighterAnalyticsPage />
+)}
 
-          {/* New Comparison Tab */}
           {activeTab === 'compare' && (
-            <div className="card">
-              <div className="card-header bg-dark">
-                <h1 className="mb-0">FIGHTER COMPARISON TOOL</h1>
+              <div className="card w-100">
+                <div className="card-header bg-dark">
+                  <h1 className="mb-0">FIGHTER COMPARISON TOOL</h1>
+                </div>
+                <div className="card-body">
+                  <FighterComparison/>
+                </div>
               </div>
-              <div className="card-body">
-                <FighterComparison />
-              </div>
-            </div>
           )}
         </div>
       </div>
-    </div>
   );
 }
 

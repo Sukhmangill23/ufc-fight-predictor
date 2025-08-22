@@ -199,20 +199,7 @@ body {
   min-width: 100px;
 }
 
-.vs-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 70px;
-  height: 70px;
-  background: #2c3e50;
-  color: white;
-  font-weight: 800;
-  font-size: 1.8rem;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  border: 2px solid var(--ufc-gold);
-}
+
 
 /* Fight Details */
 .fight-details {
@@ -1104,20 +1091,7 @@ html, body, #root {
 }
 
 /* VS Badge */
-.vs-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--ufc-red), var(--ufc-blue));
-  color: white;
-  font-weight: 800;
-  font-size: 24px;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(210, 10, 10, 0.5);
-  border: 3px solid var(--bs-white);
-}
+
 
 /* Fight Details */
 .fight-details {
@@ -1327,14 +1301,20 @@ html, body, #root {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--ufc-red), var(--ufc-blue));
-  color: white;
+
+  /* Neutral gradient for UFC theme */
+  background: linear-gradient(135deg, #000, #555); /* black → dark grey */
+
+  color: #fff; /* white text */
   font-weight: 800;
   font-size: 1.2rem;
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(210, 10, 10, 0.3),
-              0 0 15px rgba(10, 63, 210, 0.3);
-  border: 2px solid var(--bs-white);
+
+  /* Subtle neutral glow */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.15),
+              0 0 15px rgba(0, 0, 0, 0.4);
+
+  border: 2px solid #fff; /* clean white border */
 }
 
 /* FighterAnalyticsPage.css */
@@ -1581,4 +1561,98 @@ select.form-select {
 .fight-details .form-control,
 .fight-details .form-select {
   background-color: rgba(40, 40, 40, 0.9) !important;
+}
+
+/* Background cage image */
+.app-background {
+  background: url('images/as2.jpg')  no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.85);
+  color: white;
+}
+
+.app-title {
+  flex-grow: 1;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.1em;
+}
+
+/* Hamburger */
+.hamburger {
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* Sidebar menu */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* hidden */
+  width: 250px;
+  height: 100%;
+  background: rgba(20,20,20,0.95);
+  padding: 2rem 1rem;
+  transition: left 0.3s ease-in-out;
+  z-index: 2000;
+}
+.sidebar.open {
+  left: 0;
+}
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.sidebar button {
+  background: #444;
+  color: white;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+.sidebar button:hover {
+  background: #666;
+}
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  float: right;
+  cursor: pointer;
+}
+
+/* Center container */
+.main-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+.card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 16px;
+  max-width: 1200px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  overflow: hidden;
 }

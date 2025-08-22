@@ -183,14 +183,16 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #c00a0a, #0a4fd2);
+  background: linear-gradient(135deg, #111, #555); /* black → dark grey */
   color: white;
   font-weight: 800;
   font-size: 1.8rem;
   border-radius: 50%;
-  box-shadow: 0 0 20px rgba(210, 10, 10, 0.5), 0 0 30px rgba(10, 63, 210, 0.5);
-  border: 3px solid #d4af37;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2),
+              0 0 25px rgba(0, 0, 0, 0.6);
+  border: 3px solid #fff; /* white border for contrast */
 }
+
 
 .search-button-container {
   text-align: center;
@@ -873,20 +875,7 @@
   margin-right: 10px;
 }
 
-.vs-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background: #2c3e50;
-  color: white;
-  font-weight: 800;
-  font-size: 1.8rem;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  border: 3px solid #d4af37;
-}
+
 
 .search-button-container {
   text-align: center;
