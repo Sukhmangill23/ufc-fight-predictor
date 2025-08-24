@@ -699,8 +699,9 @@
 /* Base styles */
 .fighter-comparison {
   padding: 20px;
-  background: #0a0a0a;
-  min-height: 100vh;
+  width: 1000px;
+  background: #333;
+  min-height: 85vh;
   color: #fff;
 }
 
@@ -2029,4 +2030,18 @@
   .advantages-container {
     flex-direction: column;
   }
+}
+
+.card-header2 {
+  background: #1a1a1a;
+  padding: 1.2rem;
+  text-align: center;
+  border-bottom: 1px solid var(--ufc-border);
+}
+.card {
+  background: var(--ufc-card-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border: 1px solid var(--ufc-border);
 }

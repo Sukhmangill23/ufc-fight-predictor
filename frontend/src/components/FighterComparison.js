@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getFighterStats, searchFighters } from '../services/api';
-import '../fc.css';  // Make sure this path is correct
+import '../fc.css';
 
 const FighterComparison = () => {
   const [fighter1, setFighter1] = useState('');
@@ -89,26 +89,25 @@ const FighterComparison = () => {
     return { value: 0, winner: 0 };
   };
 
-  // Radar chart data
-  const radarStats = [
-    { name: 'Striking', key: 'avg_sig_str' },
-    { name: 'Grappling', key: 'avg_td_pct' },
-    { name: 'Submissions', key: 'avg_sub_att' },
-    { name: 'Experience', key: 'total_fights' },
-    { name: 'Knockouts', key: 'ko_wins' },
-    { name: 'Win Streak', key: 'win_streak' }
-  ];
-
   // Render radar chart
   const renderRadarChart = () => {
     if (!stats1 || !stats2) return null;
 
+    const radarStats = [
+      { name: 'Striking', key: 'avg_sig_str' },
+      { name: 'Grappling', key: 'avg_td_pct' },
+      { name: 'Submissions', key: 'avg_sub_att' },
+      { name: 'Experience', key: 'total_fights' },
+      { name: 'Knockouts', key: 'ko_wins' },
+      { name: 'Win Streak', key: 'win_streak' }
+    ];
+
     const maxValues = {};
     radarStats.forEach(stat => {
       maxValues[stat.key] = Math.max(
-          stats1[stat.key] || 0,
-          stats2[stat.key] || 0,
-          1 // Ensure at least 1 to avoid division by zero
+        stats1[stat.key] || 0,
+        stats2[stat.key] || 0,
+        1
       );
     });
 
@@ -119,96 +118,96 @@ const FighterComparison = () => {
     const angle = (2 * Math.PI) / points;
 
     return (
-        <div className="radar-container" style={{width: size, height: size}}>
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-            {/* Grid lines */}
-            {[0.25, 0.5, 0.75, 1].map(level => (
-                <circle
-                    key={level}
-                    cx={center}
-                    cy={center}
-                    r={radius * level}
-                    fill="none"
-                    stroke="#333"
-                    strokeWidth="0.5"
-                />
-            ))}
-
-            {/* Axes */}
-            {radarStats.map((stat, i) => {
-              const x = center + radius * Math.cos(i * angle - Math.PI / 2);
-              const y = center + radius * Math.sin(i * angle - Math.PI / 2);
-              return (
-                  <line
-                      key={i}
-                      x1={center}
-                      y1={center}
-                      x2={x}
-                      y2={y}
-                      stroke="#444"
-                      strokeWidth="0.5"
-                  />
-              );
-            })}
-
-            {/* Fighter 1 area */}
-            <polygon
-                points={radarStats.map((stat, i) => {
-                  const value = (stats1[stat.key] || 0) / maxValues[stat.key];
-                  const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
-                  const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
-                  return `${x},${y}`;
-                }).join(' ')}
-                fill="rgba(192, 10, 10, 0.4)"
-                stroke="#c00a0a"
-                strokeWidth="2"
+      <div className="radar-container" style={{width: size, height: size}}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          {/* Grid lines */}
+          {[0.25, 0.5, 0.75, 1].map(level => (
+            <circle
+              key={level}
+              cx={center}
+              cy={center}
+              r={radius * level}
+              fill="none"
+              stroke="#333"
+              strokeWidth="0.5"
             />
+          ))}
 
-            {/* Fighter 2 area */}
-            <polygon
-                points={radarStats.map((stat, i) => {
-                  const value = (stats2[stat.key] || 0) / maxValues[stat.key];
-                  const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
-                  const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
-                  return `${x},${y}`;
-                }).join(' ')}
-                fill="rgba(10, 79, 212, 0.4)"
-                stroke="#0a4fd2"
-                strokeWidth="2"
-            />
+          {/* Axes */}
+          {radarStats.map((stat, i) => {
+            const x = center + radius * Math.cos(i * angle - Math.PI / 2);
+            const y = center + radius * Math.sin(i * angle - Math.PI / 2);
+            return (
+              <line
+                key={i}
+                x1={center}
+                y1={center}
+                x2={x}
+                y2={y}
+                stroke="#444"
+                strokeWidth="0.5"
+              />
+            );
+          })}
 
-            {/* Labels */}
-            {radarStats.map((stat, i) => {
-              const x = center + (radius + 15) * Math.cos(i * angle - Math.PI / 2);
-              const y = center + (radius + 15) * Math.sin(i * angle - Math.PI / 2);
-              return (
-                  <text
-                      key={i}
-                      x={x}
-                      y={y}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="#fff"
-                      fontSize="10"
-                  >
-                    {stat.name}
-                  </text>
-              );
-            })}
-          </svg>
+          {/* Fighter 1 area */}
+          <polygon
+            points={radarStats.map((stat, i) => {
+              const value = (stats1[stat.key] || 0) / maxValues[stat.key];
+              const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
+              const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
+              return `${x},${y}`;
+            }).join(' ')}
+            fill="rgba(231, 76, 60, 0.4)"
+            stroke="#e74c3c"
+            strokeWidth="2"
+          />
 
-          {/* Legend */}
-          <div className="radar-legend">
-            <div className="legend-item">
-              <div className="legend-color-box red-legend-box"></div>
-              <span className="legend-text">{fighter1}</span>
-            </div>
-            <div className="legend-item">
-              <div className="legend-color-box blue-legend-box"></div>
-              <span className="legend-text">{fighter2}</span>
-            </div>
+          {/* Fighter 2 area */}
+          <polygon
+            points={radarStats.map((stat, i) => {
+              const value = (stats2[stat.key] || 0) / maxValues[stat.key];
+              const x = center + radius * value * Math.cos(i * angle - Math.PI / 2);
+              const y = center + radius * value * Math.sin(i * angle - Math.PI / 2);
+              return `${x},${y}`;
+            }).join(' ')}
+            fill="rgba(52, 152, 219, 0.4)"
+            stroke="#3498db"
+            strokeWidth="2"
+          />
+
+          {/* Labels */}
+          {radarStats.map((stat, i) => {
+            const x = center + (radius + 15) * Math.cos(i * angle - Math.PI / 2);
+            const y = center + (radius + 15) * Math.sin(i * angle - Math.PI / 2);
+            return (
+              <text
+                key={i}
+                x={x}
+                y={y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#fff"
+                fontSize="10"
+              >
+                {stat.name}
+              </text>
+            );
+          })}
+        </svg>
+
+        {/* Legend */}
+        <div className="radar-legend">
+          <div className="legend-item">
+            <div className="legend-color-box" style={{backgroundColor: 'rgba(231, 76, 60, 0.4)'}}></div>
+            <span className="legend-text">{fighter1}</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color-box" style={{backgroundColor: 'rgba(52, 152, 219, 0.4)'}}></div>
+            <span className="legend-text">{fighter2}</span>
           </div>
         </div>
+      </div>
     );
   };
 
@@ -224,15 +223,13 @@ const FighterComparison = () => {
     ];
 
     return (
-
-
       <div className="advantages-container">
         {advantages.map(adv => {
           const advantage = calculateAdvantage(stats1[adv.key], stats2[adv.key]);
           if (advantage.value === 0) return null;
 
           return (
-            <div key={adv.key} className={`advantage-card ${advantage.winner === 1 ? 'red-advantage' : 'blue-advantage'}`}>
+            <div key={adv.key} className="advantage-card">
               <div className="advantage-header">
                 <i className={`fas ${adv.icon} advantage-icon ${advantage.winner === 1 ? 'red-icon' : 'blue-icon'}`}></i>
                 <h5 className="advantage-name">{adv.name}</h5>
@@ -261,163 +258,183 @@ const FighterComparison = () => {
   };
 
   return (
-    <div className="fighter-comparison">
-      <div className="comparison-container">
-        <div className="header-section">
-          <h1 className="main-title">
-            <i className="fas fa-balance-scale title-icon"></i>
-            Fighter Comparison Tool
-          </h1>
-          <div className="analytics-badge">
-            UFC PERFORMANCE ANALYTICS
-          </div>
-        </div>
+    <div className="card w-100">
+      <div className="card-header bg-dark py-2">
+        <h1 className="mb-0 h4">
+          <i className="fas fa-balance-scale me-2"></i> Fighter Comparison Tool
+        </h1>
+      </div>
 
-        {/* Search Section */}
-        <div className="search-container">
-          <h2 className="section-title">
-            Select Fighters to Compare
-          </h2>
-
-          <div className="search-inputs">
-            <div className="fighter-input-group">
-              <label className="input-label red-corner">
-                <i className="fas fa-fist-raised label-icon"></i>
-                Red Corner Fighter
-              </label>
-              <div className="search-input-wrapper">
+      <div className="card-body d-flex flex-column p-3">
+        <div className="row flex-grow-1 mb-3">
+          {/* Fighter 1 Card */}
+          <div className="col-md-5 d-flex flex-column">
+            <div className="fighter-card red-corner">
+              <h3 className="corner-title">Red Corner</h3>
+              <div className="search-container">
                 <input
                   type="text"
-                  className="search-input red-input"
+                  className="search-input"
                   value={fighter1}
                   onChange={(e) => handleSearch1(e.target.value)}
-                  placeholder="Enter fighter name"
+                  placeholder="Search fighter..."
                 />
                 {showResults1 && searchResults1.length > 0 && (
-                  <div className="search-results red-results">
+                  <div className="search-results">
                     {searchResults1.map((fighter, index) => (
                       <div
                         key={index}
-                        className="result-item"
+                        className="search-item"
                         onClick={() => handleSelectFighter1(fighter)}
                       >
-                        <i className="fas fa-user result-icon"></i>
+                        <i className="fas fa-user me-2"></i>
                         {fighter}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+              {stats1 && (
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-value">{stats1.height || 'N/A'}</div>
+                    <div className="stat-label">Height</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{stats1.reach || 'N/A'}</div>
+                    <div className="stat-label">Reach</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{stats1.age || 'N/A'}</div>
+                    <div className="stat-label">Age</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{stats1.win_streak || '0'}</div>
+                    <div className="stat-label">Win Streak</div>
+                  </div>
+                </div>
+              )}
             </div>
+          </div>
 
-            <div className="vs-badge">
-              VS
-            </div>
+          {/* VS Badge */}
+          <div className="col-md-2 d-flex align-items-center justify-content-center">
+            <div className="vs-badge">VS</div>
+          </div>
 
-            <div className="fighter-input-group">
-              <label className="input-label blue-corner">
-                <i className="fas fa-shield-alt label-icon"></i>
-                Blue Corner Fighter
-              </label>
-              <div className="search-input-wrapper">
+          {/* Fighter 2 Card */}
+          <div className="col-md-5 d-flex flex-column">
+            <div className="fighter-card blue-corner">
+              <h3 className="corner-title">Blue Corner</h3>
+              <div className="search-container">
                 <input
                   type="text"
-                  className="search-input blue-input"
+                  className="search-input"
                   value={fighter2}
                   onChange={(e) => handleSearch2(e.target.value)}
-                  placeholder="Enter fighter name"
+                  placeholder="Search fighter..."
                 />
                 {showResults2 && searchResults2.length > 0 && (
-                  <div className="search-results blue-results">
+                  <div className="search-results">
                     {searchResults2.map((fighter, index) => (
                       <div
                         key={index}
-                        className="result-item"
+                        className="search-item"
                         onClick={() => handleSelectFighter2(fighter)}
                       >
-                        <i className="fas fa-user result-icon"></i>
+                        <i className="fas fa-user me-2"></i>
                         {fighter}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          <div className="search-button-container">
-            <button
-              className="compare-button"
-              onClick={handleSearch}
-              disabled={!fighter1 || !fighter2 || loading}
-            >
-              {loading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin button-icon"></i>
-                  ANALYZING FIGHTERS...
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-search button-icon"></i>
-                  COMPARE FIGHTERS
-                </>
+              {stats2 && (
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-value">{stats2.height || 'N/A'}</div>
+                    <div className="stat-label">Height</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{stats2.reach || 'N/A'}</div>
+                    <div className="stat-label">Reach</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{stats2.age || 'N/A'}</div>
+                    <div className="stat-label">Age</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{stats2.win_streak || '0'}</div>
+                    <div className="stat-label">Win Streak</div>
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
           </div>
         </div>
 
-        {(stats1 && stats2) && (
-          <div>
-            {/* Stats Comparison */}
-            <div className="stats-container">
-              <h2 className="section-title with-underline">
-                STATISTICAL COMPARISON
-              </h2>
+        {/* Compare Button */}
+        <div className="mt-auto">
+          <button
+            className="btn-predict"
+            onClick={handleSearch}
+            disabled={!fighter1 || !fighter2 || loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                COMPARING FIGHTERS...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-balance-scale me-2"></i> COMPARE FIGHTERS
+              </>
+            )}
+          </button>
+        </div>
 
-              <div className="fighter-stats">
-                <div className="fighter-column">
-                  <div className="fighter-header red-header">
-                    <h3 className="fighter-name">{fighter1}</h3>
+        {/* Results Section */}
+        {stats1 && stats2 && (
+          <div className="result-container mt-3">
+            <h3 className="text-center mb-3">Detailed Comparison Analysis</h3>
+
+            {/* Stats Comparison */}
+            <div className="mb-4">
+              <h4 className="section-title mb-3">Statistical Comparison</h4>
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="fighter-header red-header p-3 mb-3">
+                    <h4 className="fighter-name text-center mb-0">{fighter1}</h4>
                   </div>
                   <div className="stats-list">
                     {statFields.map(field => (
-                      <div
-                        key={field.key}
-                        className="stat-item"
-                      >
+                      <div key={field.key} className="stat-item d-flex justify-content-between py-2 border-bottom">
                         <span className="stat-label">{field.label}:</span>
                         <span className="stat-value">
                           {stats1[field.key] || 'N/A'}
+                          {stats1[field.key] > stats2[field.key] && (
+                            <i className="fas fa-arrow-up text-success ms-2"></i>
+                          )}
                         </span>
-                        {stats1[field.key] > stats2[field.key] && (
-                          <div className="stat-arrow red-arrow">
-                            <i className="fas fa-arrow-up"></i>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="fighter-column">
-                  <div className="fighter-header blue-header">
-                    <h3 className="fighter-name">{fighter2}</h3>
+                <div className="col-md-6">
+                  <div className="fighter-header blue-header p-3 mb-3">
+                    <h4 className="fighter-name text-center mb-0">{fighter2}</h4>
                   </div>
                   <div className="stats-list">
                     {statFields.map(field => (
-                      <div
-                        key={field.key}
-                        className="stat-item"
-                      >
+                      <div key={field.key} className="stat-item d-flex justify-content-between py-2 border-bottom">
                         <span className="stat-label">{field.label}:</span>
                         <span className="stat-value">
                           {stats2[field.key] || 'N/A'}
+                          {stats2[field.key] > stats1[field.key] && (
+                            <i className="fas fa-arrow-up text-success ms-2"></i>
+                          )}
                         </span>
-                        {stats2[field.key] > stats1[field.key] && (
-                          <div className="stat-arrow blue-arrow">
-                            <i className="fas fa-arrow-up"></i>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -426,25 +443,20 @@ const FighterComparison = () => {
             </div>
 
             {/* Visual Comparison */}
-            <div className="visual-container">
-              <h2 className="section-title with-underline">
-                VISUAL ANALYSIS
-              </h2>
-
-              <div className="visual-grid">
-                <div className="metrics-section">
-                  <h3 className="sub-section-title">
-                    KEY METRICS COMPARISON
-                  </h3>
+            <div className="mb-4">
+              <h4 className="section-title mb-3">Visual Analysis</h4>
+              <div className="row">
+                <div className="col-md-6">
+                  <h5 className="sub-section-title text-center mb-3">Key Metrics Comparison</h5>
                   <div className="metrics-grid">
                     {['height', 'reach', 'avg_sig_str', 'avg_td_pct', 'win_streak', 'ko_wins'].map(metric => (
-                      <div key={metric} className="metric-card">
-                        <h5 className="metric-title">
-                          {metric.replace(/_/g, ' ')}
-                        </h5>
-                        <div className="metric-comparison">
-                          <div className="metric-value-group">
-                            <div className="metric-value red-metric">
+                      <div key={metric} className="metric-card p-3 mb-3">
+                        <h6 className="metric-title text-center">
+                          {metric.replace(/_/g, ' ').toUpperCase()}
+                        </h6>
+                        <div className="metric-comparison d-flex justify-content-between align-items-center mb-2">
+                          <div className="metric-value-group text-center">
+                            <div className="metric-value red-metric p-2">
                               {stats1[metric] || 0}
                             </div>
                             <small className="metric-label">{fighter1}</small>
@@ -452,8 +464,8 @@ const FighterComparison = () => {
                           <div className="metric-vs-badge">
                             VS
                           </div>
-                          <div className="metric-value-group">
-                            <div className="metric-value blue-metric">
+                          <div className="metric-value-group text-center">
+                            <div className="metric-value blue-metric p-2">
                               {stats2[metric] || 0}
                             </div>
                             <small className="metric-label">{fighter2}</small>
@@ -476,12 +488,10 @@ const FighterComparison = () => {
                   </div>
                 </div>
 
-                <div className="radar-section">
-                  <h3 className="sub-section-title">
-                    SKILLS RADAR CHART
-                  </h3>
+                <div className="col-md-6">
+                  <h5 className="sub-section-title text-center mb-3">Skills Radar Chart</h5>
                   {renderRadarChart()}
-                  <p className="radar-description">
+                  <p className="radar-description text-center mt-2">
                     The radar chart visualizes each fighter's strengths across key skill categories.
                     The larger the area, the more dominant the fighter in that category.
                   </p>
@@ -494,12 +504,10 @@ const FighterComparison = () => {
 
             {/* Final Comparison */}
             <div className="final-container">
-              <h2 className="section-title">
-                FINAL COMPARISON ANALYSIS
-              </h2>
-              <div className="final-score">
-                <div className="score-group">
-                  <div className="score-circle red-score">
+              <h4 className="section-title text-center mb-3">Final Comparison Analysis</h4>
+              <div className="final-score d-flex justify-content-around align-items-center mb-4">
+                <div className="score-group text-center">
+                  <div className="score-circle red-score mx-auto d-flex align-items-center justify-content-center mb-2">
                     <span className="score-value">
                       {Object.keys(stats1).filter(key =>
                         statFields.some(f => f.key === key) &&
@@ -507,7 +515,7 @@ const FighterComparison = () => {
                       ).length}
                     </span>
                   </div>
-                  <h3 className="fighter-score-name">{fighter1}</h3>
+                  <h5 className="fighter-score-name">{fighter1}</h5>
                   <p className="score-label">Categories Won</p>
                 </div>
 
@@ -515,8 +523,8 @@ const FighterComparison = () => {
                   VS
                 </div>
 
-                <div className="score-group">
-                  <div className="score-circle blue-score">
+                <div className="score-group text-center">
+                  <div className="score-circle blue-score mx-auto d-flex align-items-center justify-content-center mb-2">
                     <span className="score-value">
                       {Object.keys(stats2).filter(key =>
                         statFields.some(f => f.key === key) &&
@@ -524,17 +532,17 @@ const FighterComparison = () => {
                       ).length}
                     </span>
                   </div>
-                  <h3 className="fighter-score-name">{fighter2}</h3>
+                  <h5 className="fighter-score-name">{fighter2}</h5>
                   <p className="score-label">Categories Won</p>
                 </div>
               </div>
 
-              <div className="insights-container">
-                <h3 className="insights-title">
-                  <i className="fas fa-lightbulb insights-icon"></i>
+              <div className="insights-container p-3">
+                <h5 className="insights-title">
+                  <i className="fas fa-lightbulb me-2"></i>
                   Key Insights
-                </h3>
-                <ul className="insights-list">
+                </h5>
+                <ul className="insights-list mb-0">
                   <li className="insight-item">
                     <strong className="red-highlight">{fighter1}</strong> has the advantage in striking power with <strong>{stats1.avg_sig_str || 0}</strong> significant strikes per minute.
                   </li>

@@ -136,7 +136,7 @@ const FighterAnalyticsPage = () => {
 
   return (
     <div className="d-flex justify-content-center py-4 fighter-analytics-container">
-      <div className="card w-100" style={{ maxWidth: "1400px", minHeight: "60vh" }}>
+      <div className="card w-100" style={{ maxWidth: "1400px", minHeight: "60vh", position: "absolute", top: "200px", left: "480px" }}>
         <div className="card-header bg-dark">
           <h1 className="mb-0">FIGHTER ANALYTICS</h1>
           <p className="mb-0 text-light">Detailed performance statistics for UFC fighters</p>

@@ -979,7 +979,7 @@ html, body, #root {
 
 .container {
   flex: 1;
-  max-width: 1600px;
+  max-width: 16100px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -1560,7 +1560,7 @@ select.form-select {
 
 /* Background cage image */
 .app-background {
-  background: url('images/pic1.jpg.avif')  no-repeat center center fixed;
+  background: url('images/abc2.jpg')  no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
   display: flex;
@@ -1700,7 +1700,17 @@ select.form-select {
 /* Card adjustments for both pages */
 .card.w-100 {
   max-width: 1000px;
+  position: absolute;  /* allows x/y positioning */
+  top: 260px;          /* y-axis (down from top) */
+  left: 700px;         /* x-axis (right from left) */
+}
+.card2.w-100 {
+  max-width: 1000px;
   margin: 0 auto;
+}
+
+.card2-body {
+  padding: 25px;
 }
 
 /* Ensure proper spacing */

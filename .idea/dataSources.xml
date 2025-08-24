@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:sqlite:C:\Users\Gillp\PycharmProjects\ufc-fight-predictor\backend\database\ufc.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="postgres@localhost" uuid="6dec22a2-a1bc-438e-9fe3-b03b0d74d657">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
