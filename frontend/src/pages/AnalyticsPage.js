@@ -230,19 +230,19 @@ const FighterAnalyticsPage = () => {
                           <div className="metric-value metric-total">
                             {fighterData.performance_metrics.total_fights}
                           </div>
-                          <div className="text-white">Total Fights</div>
+                          <div className="text-black">Total Fights</div>
                         </div>
                         <div className="col-md-4">
                           <div className="metric-value metric-wins">
                             {fighterData.performance_metrics.wins}
                           </div>
-                          <div className="text-white">Wins</div>
+                          <div className="text-black">Wins</div>
                         </div>
                         <div className="col-md-4">
                           <div className="metric-value metric-losses">
                             {fighterData.performance_metrics.losses}
                           </div>
-                          <div className="text-white">Losses</div>
+                          <div className="text-black">Losses</div>
                         </div>
                       </div>
                       {performanceChartData && (
@@ -274,19 +274,19 @@ const FighterAnalyticsPage = () => {
                           <div className="metric-value metric-ko">
                             {fighterData.performance_metrics.ko_wins}
                           </div>
-                          <div className="text-white">KO/TKO</div>
+                          <div className="text-black">KO/TKO</div>
                         </div>
                         <div className="col-md-4">
                           <div className="metric-value metric-sub">
                             {fighterData.performance_metrics.sub_wins}
                           </div>
-                          <div className="text-white">Submissions</div>
+                          <div className="text-black">Submissions</div>
                         </div>
                         <div className="col-md-4">
                           <div className="metric-value metric-dec">
                             {fighterData.performance_metrics.decision_wins}
                           </div>
-                          <div className="text-white">Decisions</div>
+                          <div className="text-black">Decisions</div>
                         </div>
                       </div>
                       {winMethodChartData && (

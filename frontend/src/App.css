@@ -61,7 +61,7 @@ body {
   background: #1a1a1a;
   padding: 1.2rem;
   text-align: center;
-  border-bottom: 1px solid var(--ufc-border);
+  border-bottom: 1px solid var(white);
 }
 
 .card-header h1 {
@@ -1560,7 +1560,7 @@ select.form-select {
 
 /* Background cage image */
 .app-background {
-  background: url('images/abc2.jpg')  no-repeat center center fixed;
+  background: url('images/abc2.png')  no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
   display: flex;
@@ -1744,4 +1744,94 @@ select.form-select {
   align-items: flex-start;
   padding: 2rem;
   width: 100%;
+}
+/* Sidebar container */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* hidden */
+  width: 260px;
+  height: 100%;
+  background: linear-gradient(180deg, #000 0%, #111 100%); /* black to dark grey */
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  left: 0; /* slide in */
+}
+
+/* Sidebar header (close button area) */
+.sidebar-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: 2rem;
+  color: #f8f9fa;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #e10600; /* UFC red */
+}
+
+/* Sidebar nav */
+.sidebar-nav {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Sidebar buttons */
+.sidebar-nav button,
+.sidebar-nav .logout-btn {
+  background: #1c1c1c;
+  border: 2px solid transparent;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  letter-spacing: 0.5px;
+}
+
+/* Hover state */
+.sidebar-nav button:hover,
+.sidebar-nav .logout-btn:hover {
+  border-color: #e10600;   /* UFC red outline */
+  background: #2c2c2c;     /* slightly lighter grey */
+  transform: translateX(5px);
+}
+
+/* Active tab */
+.sidebar-nav button.active {
+  background: #e10600; /* UFC red */
+  color: #fff;
+  border-color: #e10600;
+  box-shadow: 0 0 12px rgba(225, 6, 0, 0.6);
+}
+
+/* Logout button styled separately */
+.sidebar-nav .logout-btn {
+  margin-top: auto;
+  background: #3a3a3a;
+}
+
+.sidebar-nav .logout-btn:hover {
+  background: #e10600;
+  border-color: #e10600;
 }
