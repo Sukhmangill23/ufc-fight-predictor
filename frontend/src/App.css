@@ -309,15 +309,7 @@ input::selection, textarea::selection {
 
 
 
-.winner-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(90deg, var(--ufc-red), var(--ufc-blue));
-}
+
 
 .winner-name {
   font-family: 'Oswald', sans-serif;
@@ -1489,13 +1481,6 @@ html, body, #root {
   transition: all 0.3s;
 }
 
-.form-control:focus, .form-select:focus {
-  background-color: rgba(50, 50, 50, 0.8) !important;
-  border-color: #d4af37 !important;
-  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25) !important;
-  color: #ffffff !important;
-  outline: none;
-}
 
 /* Placeholder styling */
 .form-control::placeholder {
@@ -1535,7 +1520,10 @@ html, body, #root {
   width: 100%;
   font-size: 16px;
 }
-
+.search-input:hover {
+  background-color: rgba(0, 123, 255, 0.2); /* light blue background on hover */
+  border-color: #007bff; /* blue border on hover */
+}
 .search-input::placeholder {
   color: #aaaaaa !important;
 }
@@ -1557,6 +1545,12 @@ select.form-select {
 .fight-details .form-select {
   background-color: rgba(40, 40, 40, 0.9) !important;
 }
+
+.form-select:focus {
+border-color: #1e90ff !important;  /* blue border */
+  box-shadow: 0 0 6px #1e90ff !important; /* blue glow */
+  outline: none !important; }
+
 
 /* Background cage image */
 .app-background {
@@ -1713,19 +1707,31 @@ select.form-select {
   padding: 25px;
 }
 
-/* Ensure proper spacing */
 .card-body {
   padding: 25px;
+  background-color: #fff; /* White background */
 }
+
 
 /* Table responsiveness */
 .table-responsive {
   overflow-x: auto;
 }
 
-/* Search bar adjustments */
 .search-container {
   position: relative;
+}
+
+/* Override Bootstrap yellow highlight */
+.search-container .form-control:focus {
+  border-color: #1e90ff !important;   /* blue border */
+  box-shadow: 0 0 6px #1e90ff !important; /* blue glow */
+  outline: none !important;
+}
+.form-control:hover {
+  border-color: #1e90ff !important;   /* blue border */
+  box-shadow: 0 0 6px #1e90ff !important; /* blue glow */
+  outline: none !important;
 }
 
 .search-results {
@@ -1812,17 +1818,18 @@ select.form-select {
 /* Hover state */
 .sidebar-nav button:hover,
 .sidebar-nav .logout-btn:hover {
-  border-color: #e10600;   /* UFC red outline */
+  border-color: #1e90ff !important;
+  box-shadow: 0 0 6px #1e90ff !important; /* UFC red outline */
   background: #2c2c2c;     /* slightly lighter grey */
   transform: translateX(5px);
 }
 
 /* Active tab */
 .sidebar-nav button.active {
-  background: #e10600; /* UFC red */
+  background: #1e90ff; /* UFC red */
   color: #fff;
-  border-color: #e10600;
-  box-shadow: 0 0 12px rgba(225, 6, 0, 0.6);
+ border-color: #1e90ff !important;
+  box-shadow: 0 0 6px #1e90ff !important;
 }
 
 /* Logout button styled separately */
@@ -1832,6 +1839,179 @@ select.form-select {
 }
 
 .sidebar-nav .logout-btn:hover {
-  background: #e10600;
-  border-color: #e10600;
+  background:  #1e90ff;
+  border-color:  #1e90ff;
+  box-shadow: 0 0 80px #1e90ff !important;
+}
+
+:root {
+  --ufc-bg: #0f0f0f;
+  --ufc-card: #1c1c1e;
+  --ufc-border: #2c2c2e;
+  --ufc-bluegrey: #3a6ea5;
+  --ufc-text: #ffffff;
+}
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Background image */
+  background: url("images/abvc.jpg")
+    no-repeat center center fixed;
+  background-size: cover;
+
+  /* Dark overlay for readability */
+  position: relative;
+}
+
+.auth-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 15, 15, 0.85); /* UFC dark overlay */
+  z-index: 0;
+}
+.auth-container::after {
+  content: "";
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 250px;   /* increase size */
+  height: 120px;
+  background: url("images/UFC_logo.svg.png") no-repeat center;
+  background-size: contain;
+
+  /* make it white */
+  filter: brightness(0) invert(1);
+
+  opacity: 1; /* fully visible */
+  z-index: 2;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1; /* keeps card above overlay */
+  background: var(--ufc-card);
+  border: 1px solid var(--ufc-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  color: var(--ufc-text);
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--ufc-border);
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 0;
+  text-align: center;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s ease, border-bottom 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--ufc-bluegrey);
+}
+
+.tab.active {
+  color: var(--ufc-text);
+  border-bottom: 2px solid var(--ufc-bluegrey);
+}
+
+.form-wrapper {
+  margin-top: 10px;
+}
+
+/* Shared button style (from your .btn-predict) */
+.btn-predict {
+  background: var(--ufc-card);
+  border: 1px solid var(--ufc-border);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 12px;
+  padding: 12px 20px;
+  width: 100%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-predict:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+.btn-predict:active {
+  transform: translateY(1px);
+}
+
+/* Input styling */
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid var(--ufc-border);
+  background: #121212;
+  color: var(--ufc-text);
+}
+
+.auth-card input:focus {
+  border-color: var(--ufc-bluegrey);
+  box-shadow: 0 0 6px var(--ufc-bluegrey);
+  outline: none;
+}
+.btn,
+.btn-primary,
+.btn-danger {
+  @apply btn-predict; /* if using Tailwind */
+}
+
+/* If not using Tailwind, just force styles */
+.btn,
+.btn-primary,
+.btn-danger {
+  background: var(--ufc-card) !important;
+  border: 1px solid var(--ufc-border) !important;
+  color: #fff !important;
+  font-weight: bold !important;
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  width: 100% !important;
+  transition: background 0.2s ease, transform 0.2s ease !important;
+}
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centers horizontally */
+  justify-content: center; /* centers vertically */
+  text-align: center;
+  padding: 10px;
+}
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  min-height: 28px;  /* adjust until all numbers align */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+abel {
+  font-size: 0.9rem;
+  color: #bbb;
 }

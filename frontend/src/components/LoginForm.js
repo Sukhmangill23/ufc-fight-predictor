@@ -41,7 +41,7 @@ const LoginForm = () => {
           <label>Username</label>
           <input
             type="text"
-            className="form-control"
+            className="search-container .form-control:focus"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -51,7 +51,7 @@ const LoginForm = () => {
           <label>Password</label>
           <input
             type="password"
-            className="form-control"
+            className="search-container .form-control:focus"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

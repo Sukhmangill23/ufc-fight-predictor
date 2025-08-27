@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
+import '../App.css';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,7 +24,9 @@ const AuthPage = () => {
           </button>
         </div>
 
-        {isLogin ? <LoginForm /> : <RegisterForm />}
+        <div className="form-wrapper">
+          {isLogin ? <LoginForm /> : <RegisterForm />}
+        </div>
       </div>
     </div>
   );
