@@ -179,14 +179,14 @@ body {
 
 .stat-value {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 300;
   margin-bottom: 5px;
-  color: var(--ufc-text-light);
+  color: black;
 }
 
 .stat-label {
   font-size: 0.8rem;
-  color: #a0b0c0;
+  color: black;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -203,12 +203,12 @@ body {
 
 /* Fight Details */
 .fight-details {
-  background: var(--ufc-card-bg);
+  background:  rgba(50, 50, 50, 0.5);
   border-radius: 12px;
   padding: 20px;
   margin: 20px 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--ufc-border);
+   border: 1px solid #444;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
@@ -272,8 +272,8 @@ input::selection, textarea::selection {
 /* Prediction Button */
 /* In App.css, update the predict button */
 .btn-predict {
-  background: var(--ufc-card);
-  border: 1px solid var(--ufc-border);
+  background:  rgba(50, 50, 50, 0.5);
+  border: 1px solid #444;
   color: #fff;
   font-weight: bold;
   border-radius: 12px;
@@ -291,16 +291,7 @@ input::selection, textarea::selection {
   transform: translateY(1px);
 }
 
-/* Prediction Results */
-.result-container {
-  margin-top: 25px;
-  padding: 20px;
-  border-radius: 12px;
-  background: var(--ufc-card-bg);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.6s ease;
-  border: 1px solid var(--ufc-border);
-}
+
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -483,7 +474,7 @@ input::selection, textarea::selection {
 
 /* PREDICTION INSIGHTS FIXES - CRITICAL */
 .insights-card {
-  background: #1a1a1a;
+  background: #fff;
   border-radius: 10px;
   padding: 20px;
   margin: 20px 0;
@@ -592,8 +583,8 @@ input::selection, textarea::selection {
 }
 
 /* Specific fixes for prediction numbers */
-.influence-value, .stat-value, .prob-value {
-  color: #ffffff !important;
+.influence-value, .prob-value {
+  color: black  !important;
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   font-weight: 700;
 }
@@ -773,7 +764,7 @@ input::selection, textarea::selection {
 }
 /* Fighter Header Styles */
 .fighter-header {
-  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  background: rgba(50, 50, 50, 0.5);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
@@ -790,7 +781,7 @@ input::selection, textarea::selection {
 }
 
 .stat-badge {
-  background: rgba(40,40,40,0.8);
+  background: white;
   border-radius: 8px;
   padding: 12px 15px;
   min-width: 120px;
@@ -798,14 +789,14 @@ input::selection, textarea::selection {
 }
 
 .stat-value {
-  color: #ffffff !important;
+  color: black !important;
   font-size: 1.4rem;
-  font-weight: 600;
+  font-weight: 400; /* Normal weight */
   margin-bottom: 5px;
 }
 
 .stat-label {
-  color: #aaaaaa !important;
+  color: black  !important;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -1015,7 +1006,7 @@ html, body, #root {
 
 /* Fighter Cards */
 .fighter-card {
-  background: var(--ufc-card);
+  background: rgba(50, 50, 50, 0.5);
   border-radius: 12px;
   padding: 20px;
   height: 100%;
@@ -1042,6 +1033,7 @@ html, body, #root {
 }
 
 .fighter-name {
+  background:rgba(50, 50, 50, 0.5);
   font-size: 24px;
   font-weight: 700;
   text-align: center;
@@ -1058,7 +1050,6 @@ html, body, #root {
 }
 
 .stat-card {
-  background: rgba(50, 50, 50, 0.5);
   border-radius: 8px;
   padding: 10px;
   text-align: center;
@@ -1068,12 +1059,12 @@ html, body, #root {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 5px;
-  color: white;
+  color: black;
 }
 
 .stat-label {
   font-size: 12px;
-  color: #aaa;
+  color: black;
   text-transform: uppercase;
 }
 
@@ -1203,15 +1194,15 @@ html, body, #root {
   margin-top: 20px;
   padding: 20px;
   border-radius: 12px;
-  background: rgba(30, 30, 30, 0.9);
+  background: rgba(50, 50, 50, 0.5);
   border: 1px solid #444;
 }
 
 .insights-card h4 {
   font-size: 20px;
   margin-bottom: 15px;
-  color: var(--ufc-gold);
-  border-bottom: 1px solid #444;
+  color: var(--ufc-red);
+  border-bottom: 1px solid #fff;
   padding-bottom: 10px;
 }
 
@@ -1286,8 +1277,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 100px;
+  height: 100px;
 
   /* Neutral gradient for UFC theme */
   background: linear-gradient(135deg, #000, #555); /* black → dark grey */
@@ -1345,14 +1336,10 @@ html, body, #root {
   text-align: center;
 }
 
-.stat-value {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: var(--accent-color);
-}
+
 
 .stat-label {
-  color: var(--text-light);
+  color: black;
   font-size: 0.875rem;
 }
 
@@ -1941,8 +1928,8 @@ border-color: #1e90ff !important;  /* blue border */
 
 /* Shared button style (from your .btn-predict) */
 .btn-predict {
-  background: var(--ufc-card);
-  border: 1px solid var(--ufc-border);
+  background:  rgba(50, 50, 50, 0.5);
+  border: 1px solid #444;
   color: #fff;
   font-weight: bold;
   border-radius: 12px;
@@ -2010,8 +1997,5 @@ border-color: #1e90ff !important;  /* blue border */
   display: flex;
   align-items: center;
   justify-content: center;
-}
-abel {
-  font-size: 0.9rem;
-  color: #bbb;
+  color: black;
 }

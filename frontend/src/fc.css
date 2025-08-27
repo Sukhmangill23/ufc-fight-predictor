@@ -37,10 +37,10 @@
 /* === Result Container === */
 /* === Result Container Header Style === */
 .result-container {
-  background: #1a1a1a; /* dark background like card-header */
+  background: rgba(50, 50, 50, 0.5);
   padding: 1.2rem;
   border-radius: 12px;
-  border: 1px solid #2c2c2c;
+  border: 1px solid #444;
   color: white;
 }
 
@@ -58,14 +58,7 @@
   margin-bottom: 1rem;
 }
 
-/* === STATS === */
-.stats-list .stat-item {
-  color: #ccc;
-}
-.stats-list .stat-value {
-  font-weight: bold;
-  color: #fff;
-}
+
 
 /* === METRICS === */
 .metric-card {
@@ -120,7 +113,7 @@
 }
 .advantage-card {
   flex: 1 1 220px;
-  background: #111;
+  background: rgba(50, 50, 50, 0.5);
   border-radius: 8px;
   padding: 12px;
   color: #fff;

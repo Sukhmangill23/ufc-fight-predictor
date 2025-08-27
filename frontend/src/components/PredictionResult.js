@@ -6,7 +6,7 @@ const PredictionResult = ({ prediction }) => {
   }
 
   return (
-    <div className="result-container mt-4">
+    <div className="result-container p-3 mb-3 bg-dark">
       {prediction.loading ? (
         <div className="loading text-center">
           <i className="fas fa-spinner fa-spin fa-3x"></i>

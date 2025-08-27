@@ -193,7 +193,7 @@ const FighterAnalyticsPage = () => {
             <div className="fighter-analytics">
               <div className="row mb-4">
                 <div className="col-md-12">
-                  <div className="fighter-header text-center p-4">
+                  <div className="fighter-header text-center p-4 mb-3 bg-dark ">
                     <h2 className="display-4">{fighterData.basic_stats.name}</h2>
                     <div className="d-flex justify-content-center mt-3">
                       <div className="stat-badge me-3">

@@ -1,6 +1,7 @@
 // src/components/FighterCard.js
 import React from 'react';
 import SearchBar from './SearchBar';
+import "../App.css"
 
 
 const FighterCard = ({ corner, stats, searchTerm, setSearchTerm, onSelectFighter }) => {
@@ -11,7 +12,7 @@ const FighterCard = ({ corner, stats, searchTerm, setSearchTerm, onSelectFighter
   const hasStats = stats && Object.keys(stats).length > 0;
 
 return (
-  <div className={`fighter-card ${cornerClass} text-white`}>
+  <div className={`fighter-card ${cornerClass} p-3 mb-3 bg-dark`}>
     <h3 className={`${corner === 'red' ? 'text-danger' : 'text-primary'} mb-3`}>
       {cornerTitle}
     </h3>
@@ -24,9 +25,9 @@ return (
 
     {hasStats ? (
       <>
-        <h2 className="fighter-name">{stats.name}</h2>
+        <h2 className="fighter-name  p-3 mb-3 bg-dark">{stats.name}</h2>
         <div className="stats-grid">
-          <div className="stat-card d-flex flex-column align-items-center justify-content-center text-center">
+          <div className="stat-card  d-flex flex-column align-items-center justify-content-center text-center">
             <div className="stat-value">{stats.height ? `${stats.height} cm` : 'N/A'}</div>
             <div className="stat-label">Height</div>
           </div>

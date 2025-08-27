@@ -3,7 +3,7 @@ import React from 'react';
 
 const FightDetails = ({ rounds, setRounds, titleBout, setTitleBout }) => {
   return (
-    <div className="fight-details">
+    <div className="fight-details  p-3 mb-3 bg-dark">
       <div className="details-column">
         <div className="form-group">
           <label className="form-label">Number of Rounds</label>

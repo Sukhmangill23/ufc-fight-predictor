@@ -190,7 +190,7 @@ return (
 
             <div className="mt-auto">
               <button
-                className="btn-predict"
+                className="btn-predict p-3 mb-3 bg-dark"
                 onClick={handlePredict}
                 disabled={prediction.loading}
               >

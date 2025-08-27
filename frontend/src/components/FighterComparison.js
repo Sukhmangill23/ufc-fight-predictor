@@ -196,7 +196,8 @@ const FighterComparison = () => {
         <div className="row flex-grow-1 mb-3">
           {/* Fighter 1 Card */}
           <div className="col-md-5 d-flex flex-column">
-            <div className="fighter-card red-corner">
+            <div className="fighter-card red-corner p-3 mb-3 bg-dark
+">
               <h3 className="corner-title">Red Corner</h3>
               <div className="search-container">
                 <input
@@ -251,7 +252,8 @@ const FighterComparison = () => {
 
           {/* Fighter 2 Card */}
           <div className="col-md-5 d-flex flex-column">
-            <div className="fighter-card blue-corner">
+            <div className="fighter-card blue-corner p-3 mb-3 bg-dark
+">
               <h3 className="corner-title">Blue Corner</h3>
               <div className="search-container">
                 <input
@@ -303,7 +305,7 @@ const FighterComparison = () => {
         {/* Compare Button */}
         <div className="mt-auto">
           <button
-            className="btn-predict"
+            className="btn-predict p-3 mb-3 bg-dark"
             onClick={handleSearch}
             disabled={!fighter1 || !fighter2 || loading}
           >
@@ -322,7 +324,7 @@ const FighterComparison = () => {
 
         {/* Results Section */}
         {stats1 && stats2 && (
-          <div className="result-container mt-3">
+          <div className="result-container mt-3  p-3 mb-3 bg-dark">
             <h3 className="text-center mb-3">Detailed Comparison Analysis</h3>
 
             {/* Visual Comparison */}

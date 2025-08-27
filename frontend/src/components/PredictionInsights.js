@@ -1,20 +1,12 @@
 import React from 'react';
+import '../App.css'
 
 const PredictionInsights = ({ insights, redFighter, blueFighter }) => {
   if (!insights) return null;
 
   return (
-    <div className="insights-card mt-4">
-     <div style={{ marginTop: "1rem", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-  <div
-    style={{
-      height: "4px",
-      width: "100%",
-      background: "linear-gradient(90deg, var(--ufc-red), var(--ufc-blue))",
-      borderRadius: "4px",
-      marginBottom: "12px",
-    }}
-  ></div>
+    <div className="insights-card  p-3 mb-3 bg-dark rounded">
+     <div style={{ marginTop: "1rem", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0)" }}>
   <h4 style={{ marginBottom: "1rem" }}>
   <span style={{ color: "white" }}>Prediction Insights</span>
 </h4>
@@ -40,12 +32,30 @@ const PredictionInsights = ({ insights, redFighter, blueFighter }) => {
               <span>{blueFighter}: {insight.blue_value.toFixed(2)}</span>
             </div>
 
-            <div className="progress mb-2" style={{ height: '8px' }}>
-              <div
-                className={`progress-bar ${insight.difference > 0 ? 'bg-danger' : 'bg-primary'}`}
-                style={{ width: `$,{Math.min(100, Math.abs(insight.difference) * 10}%` }}
-              ></div>
-            </div>
+<div className="progress mb-2" style={{ height: '8px' }}>
+  {/* Red Fighter's share */}
+  <div
+    className="progress-bar bg-danger"
+    role="progressbar"
+    style={{
+      width: `${(insight.red_value / (insight.red_value + insight.blue_value)) * 100}%`,
+      borderTopRightRadius: 0,
+      borderBottomRightRadius: 0
+    }}
+  ></div>
+
+  {/* Blue Fighter's share */}
+  <div
+    className="progress-bar bg-primary"
+    role="progressbar"
+    style={{
+      width: `${(insight.blue_value / (insight.red_value + insight.blue_value)) * 100}%`,
+      borderTopLeftRadius: 0,
+      borderBottomLeftRadius: 0
+    }}
+  ></div>
+</div>
+
 
             <div className="d-flex justify-content-between">
               <small>Influence:</small>
