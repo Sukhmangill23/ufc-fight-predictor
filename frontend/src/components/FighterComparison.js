@@ -163,11 +163,11 @@ const FighterComparison = () => {
                 </div>
                 <div className="advantage-bar-container">
                   <div
-                      className="red-fill"
+                      className="red-fill2"
                       style={{width: `${(stats1[adv.key] / (stats1[adv.key] + stats2[adv.key])) * 100}%`}}
                   ></div>
                   <div
-                      className="blue-fill"
+                      className="blue-fill2"
                       style={{width: `${(stats2[adv.key] / (stats1[adv.key] + stats2[adv.key])) * 100}%`}}
                   ></div>
                 </div>

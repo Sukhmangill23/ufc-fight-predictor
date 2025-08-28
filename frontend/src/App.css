@@ -1539,23 +1539,35 @@ border-color: #1e90ff !important;  /* blue border */
   outline: none !important; }
 
 
-/* Background cage image */
 .app-background {
-  background: url('images/abc2.png')  no-repeat center center fixed;
-  background-size: cover;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+
+  /* Background image */
+  background: url("images/abc.jfif") no-repeat center center fixed;
+  background-size: cover;
+
+  /* Dark overlay for readability */
+  position: relative;
 }
 
-/* Top bar */
-.top-bar {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  background: rgba(0,0,0,0.85);
-  color: white;
+.app-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(50, 50, 50, 0.5); /* UFC dark overlay */
+  z-index: 0;
+  pointer-events: none; /* lets clicks go through */
 }
+.app-content {
+  position: relative;
+  z-index: 2;       /* sits above the overlay */
+}
+
 
 .app-title {
   flex-grow: 1;
@@ -1998,4 +2010,35 @@ border-color: #1e90ff !important;  /* blue border */
   align-items: center;
   justify-content: center;
   color: black;
+}
+
+.top-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  color: black;
+  background: black; /* light overlay behind text */
+}
+
+.hamburger {
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: white; /* make it visible on dark overlay */
+}
+
+.app-title {
+  margin-left: 1rem;
+  color: white;
+}
+.red-fill2 {
+  color: #e74c3c; /* Red fighter’s numbers */
+
+}
+
+.blue-fill2 {
+  color: #3498db; /* Blue fighter’s numbers */
 }

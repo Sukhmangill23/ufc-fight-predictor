@@ -127,8 +127,8 @@
   overflow: hidden;
   margin: 8px 0;
 }
-.advantage-bar.red-bar { background: #e74c3c; }
-.advantage-bar.blue-bar { background: #3498db; }
+.advantage-bar.red-bar { background:linear-gradient(90deg, #a00, #f00); }
+.advantage-bar.blue-bar { background: linear-gradient(90deg, #006, #00a); }
 
 /* === FINAL COMPARISON === */
 .final-score .score-circle {
@@ -256,16 +256,7 @@
   background-color: rgba(52, 152, 219, 0.3); /* light blue */
 }
 
-/* Fill part (darker solid red/blue) */
-.red-fill {
-  height: 100%;
-  background-color: #e74c3c;
-}
 
-.blue-fill {
-  height: 100%;
-  background-color: #3498db;
-}
 .advantage-bar-container {
   display: flex;
   height: 12px;
@@ -276,12 +267,32 @@
 
 /* Red fighter (Islam) */
 .red-fill {
-  background-color: #d62728; /* radar chart red */
+  background-color: linear-gradient(90deg, #a00, #f00); /* radar chart red */
   height: 100%;
 }
 
 /* Blue fighter (Dustin) */
 .blue-fill {
-  background-color: #1f77b4; /* radar chart blue */
+  background-color: linear-gradient(90deg, #006, #00a); /* radar chart blue */
+  height: 100%;
+}
+/* Red fighter: square right edge */
+.red-progress {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Blue fighter: square left edge */
+.blue-progress {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+.red-fill2 {
+  background-color: #e74c3c; /* radar chart red */
+  height: 100%
+}
+
+.blue-fill2 {
+  background-color: #3498db; /* radar chart blue */
   height: 100%;
 }
