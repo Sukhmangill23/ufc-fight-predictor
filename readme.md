@@ -2,12 +2,14 @@ A machine learning-powered web application that predicts UFC fight outcomes and 
 
 <img width="1917" height="911" alt="1a" src="https://github.com/user-attachments/assets/70ac0a64-e65e-4863-8f63-f9996746ea4c" />
 <p align="center">
-<img width="351" height="407" alt="1b" src="https://github.com/user-attachments/assets/208e9c9f-814d-42a2-8752-21a7d0cc089d" />
+<img width="318" height="405" alt="1b" src="https://github.com/user-attachments/assets/3fbc5546-4f31-4834-b7be-a1f4b7853996" />
   </p>
 <img width="1919" height="918" alt="1" src="https://github.com/user-attachments/assets/2b9c73e6-2b68-43bd-b1f7-b44134311c3d" />
 <img width="1913" height="911" alt="2" src="https://github.com/user-attachments/assets/a04e7df5-4e3d-477f-af44-d014a90a5ef4" />
+<p align="center">
 <img width="795" height="822" alt="3" src="https://github.com/user-attachments/assets/9cd74de6-ad67-4421-ac56-ada68aebd9a3" />
-<img width="744" height="725" alt="4" src="https://github.com/user-attachments/assets/1f543f6a-c282-4afc-8c5e-5fe88905c650" />
+  <img width="744" height="725" alt="4" src="https://github.com/user-attachments/assets/1f543f6a-c282-4afc-8c5e-5fe88905c650" />
+</p>
 <img width="1919" height="918" alt="5" src="https://github.com/user-attachments/assets/0a326f4a-661a-49f6-8dff-f38ee3ef834e" />
 <img width="1913" height="917" alt="6" src="https://github.com/user-attachments/assets/333bcbdf-5730-4860-9d04-b30da8293d2d" />
 <img width="1918" height="914" alt="7" src="https://github.com/user-attachments/assets/9cd5864b-9944-4806-8d44-38095ae12721" />
