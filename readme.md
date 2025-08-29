@@ -84,13 +84,13 @@ pip install -r requirements.txt
 python database/init_db.py      # Initialize the database
 python ml/model_pipeline.py     # Train the model
 python run.py                   # Start the server
-
-Frontend Setup
-
+```
+### Frontend Setup
+``` bash
 cd frontend
 npm install
 npm start                       # Start the development server
-
+```
 Usage
 
 Open your browser at http://localhost:3000.
