@@ -1,4 +1,3 @@
-
 # UFC Fight Predictor
 
 A machine learning-powered web application that predicts UFC fight outcomes and provides detailed fighter analytics.
@@ -85,13 +84,15 @@ pip install -r requirements.txt
 python database/init_db.py      # Initialize the database
 python ml/model_pipeline.py     # Train the model
 python run.py                   # Start the server
+
 Frontend Setup
-bash
-Copy code
+
 cd frontend
 npm install
 npm start                       # Start the development server
+
 Usage
+
 Open your browser at http://localhost:3000.
 
 Create an account or log in.
@@ -110,11 +111,13 @@ Explore Analytics: Dive deep into fighter statistics and history.
 
 API Endpoints
 Authentication
+
 POST /register - Create a new user account
 
 POST /login - Authenticate and receive JWT token
 
 Fighter Data
+
 GET /search_fighters - Search for fighters by name
 
 POST /get_fighter_stats - Retrieve detailed fighter statistics
@@ -122,6 +125,7 @@ POST /get_fighter_stats - Retrieve detailed fighter statistics
 POST /fighter_analytics_details - Get comprehensive fighter analytics
 
 Predictions
+
 POST /predict - Generate fight prediction between two fighters
 
 POST /prediction_insights - Get detailed explanation of prediction factors
@@ -129,13 +133,12 @@ POST /prediction_insights - Get detailed explanation of prediction factors
 GET /prediction_history - Retrieve user's prediction history
 
 Analytics
+
 GET /fighter_analytics - Get general fighter statistics and metrics
 
 GET /top_performers - Retrieve top performing fighters data
 
 Project Structure
-bash
-Copy code
 ufc-fight-predictor/
 ├── backend/
 │   ├── app/
@@ -154,7 +157,10 @@ ufc-fight-predictor/
         ├── pages/                 # Page components
         ├── services/              # API service functions
         └── context/               # React context providers
+
+
 Model Details
+
 The prediction model uses gradient boosting trained on historical UFC data. Key features:
 
 Striking statistics: significant strikes per minute
@@ -170,6 +176,7 @@ Contextual factors: number of rounds, title fight status
 Accuracy: ~75-80% on historical data.
 
 Future Enhancements
+
 Real-time UFC API integration
 
 Additional visualization options
@@ -181,7 +188,9 @@ Mobile application version
 Advanced statistical models incorporating more fight metrics
 
 License
+
 This project is for educational and demonstration purposes. UFC and related trademarks are property of their respective owners.
 
 Support
+
 For technical support or questions, contact the development team.
