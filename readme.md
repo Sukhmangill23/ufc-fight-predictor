@@ -1,4 +1,6 @@
+<p align="center">
 # UFC Fight Predictor
+</p>
 
 A machine learning-powered web application that predicts UFC fight outcomes and provides detailed fighter analytics.
 
