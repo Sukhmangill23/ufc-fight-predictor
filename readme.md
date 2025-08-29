@@ -16,9 +16,10 @@ A machine learning-powered web application that predicts UFC fight outcomes and 
 <img width="1113" height="717" alt="8" src="https://github.com/user-attachments/assets/2d520828-8af0-469a-a662-56272d49ad15" />
 <img width="951" height="417" alt="9" src="https://github.com/user-attachments/assets/1f467d8d-cea4-4752-b3d3-6652fa3a5155" />
 <img width="1918" height="911" alt="10" src="https://github.com/user-attachments/assets/4f305403-21c6-49f3-ae58-a8f8a6d2f74b" />
+<p align="center">
 <img width="792" height="431" alt="11" src="https://github.com/user-attachments/assets/3889049c-2cd0-47e9-b452-e3a79e929c1d" />
 <img width="766" height="585" alt="12" src="https://github.com/user-attachments/assets/b222b413-5805-4977-98df-2c5a3792cd66" />
-
+</p>
 
 ---
 
