@@ -4,11 +4,11 @@ import VSBadge from './components/VSBadge';
 import FightDetails from './components/FightDetails';
 import PredictionResult from './components/PredictionResult';
 import PredictionInsights from './components/PredictionInsights';
-import FighterComparison from './components/FighterComparison'; // Import the new component
+import FighterComparison from './components/FighterComparison';
 import { useAuth } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import LogoutButton from './components/LogoutButton';
-// <-- Import LogoutButton
+
 
 
 import {
@@ -92,7 +92,6 @@ function App() {
         title_bout: titleBout ? 'true' : 'false'
       });
 
-      // Get insights
       const insightsResponse = await getPredictionInsights({
         red_fighter: redFighter,
         blue_fighter: blueFighter,
@@ -123,7 +122,6 @@ function App() {
 
 return (
   <div className="app-background">
-    {/* Sidebar */}
     <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <button className="close-btn" onClick={() => setSidebarOpen(false)}>×</button>
@@ -148,7 +146,6 @@ return (
       <h1 className="app-title">UFC Predictor</h1>
     </div>
 
-    {/* Main Content */}
     <div className="main-container">
       {activeTab === 'predict' && (
         <div className="card w-100">

@@ -33,7 +33,6 @@ const PredictionInsights = ({ insights, redFighter, blueFighter }) => {
             </div>
 
 <div className="progress mb-2" style={{ height: '8px' }}>
-  {/* Red Fighter's share */}
   <div
     className="progress-bar bg-danger"
     role="progressbar"
@@ -44,7 +43,6 @@ const PredictionInsights = ({ insights, redFighter, blueFighter }) => {
     }}
   ></div>
 
-  {/* Blue Fighter's share */}
   <div
     className="progress-bar bg-primary"
     role="progressbar"

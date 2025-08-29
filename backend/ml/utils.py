@@ -11,7 +11,6 @@ def get_data_path():
 
 def preprocess_data(df):
     """Clean and transform raw fight data"""
-    # 1. Drop high-missing columns (from EDA >20% missing)
     high_missing_drop = [
         'BWFeatherweightRank', 'RWFeatherweightRank', 'BPFPRank', 'BWFlyweightRank',
         'RWFlyweightRank', 'BWStrawweightRank', 'BWBantamweightRank', 'BBantamweightRank',
@@ -24,43 +23,32 @@ def preprocess_data(df):
     ]
     df = df.drop(columns=high_missing_drop, errors='ignore')
 
-    # 2. Convert booleans
     df['TitleBout'] = df['TitleBout'].astype(int)
 
-    # Championship round flag
     df['ChampionshipRound'] = df['NumberOfRounds'].apply(lambda x: 1 if x == 5 else 0)
 
-    # 3. Create target
     df['Target'] = df['Winner'].map({'Red': 1, 'Blue': 0})
 
-    # 4. Handle critical missing values
-    # Fill physical attributes with median
     for col in ['RedHeightCms', 'BlueHeightCms', 'RedReachCms', 'BlueReachCms']:
         df[col] = df[col].fillna(df[col].median())
 
-    # 5. Create key features
-    # Physical advantages
     df['HeightAdvRed'] = df['RedHeightCms'] - df['BlueHeightCms']
     df['ReachAdvRed'] = df['RedReachCms'] - df['BlueReachCms']
     df['SizeAdvRed'] = (df['HeightAdvRed'] + df['ReachAdvRed']) / 2
 
-    # Stance match
     df['StanceMatch'] = (df['RedStance'] == df['BlueStance']).astype(int)
 
-    # Finish potential
     df['RedFinishPotential'] = (df['RedWinsByKO'] / df['RedWins'].replace(0, 1)) + (
                 df['RedWinsBySubmission'] / df['RedWins'].replace(0, 1))
     df['BlueFinishPotential'] = (df['BlueWinsByKO'] / df['BlueWins'].replace(0, 1)) + (
                 df['BlueWinsBySubmission'] / df['BlueWins'].replace(0, 1))
     df['FinishPotentialRed'] = df['RedFinishPotential'] - df['BlueFinishPotential']
 
-    # Defense advantage (simplified)
     if 'RedAvgSigStrAbs' in df and 'BlueAvgSigStrAbs' in df:
         df['DefenseAdvRed'] = df['RedAvgSigStrAbs'] - df['BlueAvgSigStrAbs']
     else:
         df['DefenseAdvRed'] = 0
 
-    # 6. Drop redundant columns
     redundant_cols = [
         'RedFighter', 'BlueFighter', 'Location', 'Country', 'Date',
         'RedHeightCms', 'BlueHeightCms', 'RedReachCms', 'BlueReachCms',
@@ -69,7 +57,6 @@ def preprocess_data(df):
     ]
     df = df.drop(columns=redundant_cols, errors='ignore')
 
-    # 7. Handle remaining missing values with median
     for col in df.select_dtypes(include=np.number).columns:
         if df[col].isnull().sum() > 0:
             df[col] = df[col].fillna(df[col].median())
@@ -105,7 +92,6 @@ def fill_missing_stats(stats):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Get median values from database
         cursor.execute("""
             SELECT 
                 COALESCE(AVG(height), 180) AS height,
@@ -121,7 +107,6 @@ def fill_missing_stats(stats):
         median_cols = [col[0] for col in cursor.description]
         median_vals = dict(zip(median_cols, medians))
 
-        # Fill missing values with sensible defaults
         defaults = {
             'height': 180,
             'reach': 180,
@@ -136,12 +121,10 @@ def fill_missing_stats(stats):
             'total_fights': 10
         }
 
-        # Override with median values if available
         for key in defaults:
             if key in median_vals and median_vals[key] is not None:
                 defaults[key] = median_vals[key]
 
-        # Apply defaults to missing stats
         for key, value in defaults.items():
             if key not in stats or pd.isna(stats.get(key)):
                 stats[key] = value

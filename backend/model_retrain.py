@@ -9,7 +9,6 @@ def temporal_cross_validation():
     df = load_data()
     df = preprocess_data(df)
 
-    # Sort by date
     if 'Date' in df:
         df['Date'] = pd.to_datetime(df['Date'])
         df = df.sort_values('Date')

@@ -9,22 +9,17 @@ def create_fighter_database():
     db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    # Load original data
     df = pd.read_csv(get_data_path())
 
-    # Create fighter stats database
     fighters = {}
 
-    # Weight class mapping
     weight_classes = {
         'Strawweight': 0, 'Flyweight': 1, 'Bantamweight': 2, 'Featherweight': 3,
         'Lightweight': 4, 'Welterweight': 5, 'Middleweight': 6, 'Light Heavyweight': 7,
         'Heavyweight': 8, 'Catch Weight': 4, 'Openweight': 4
     }
 
-    # Process each fighter from both red and blue corners
     for _, row in df.iterrows():
-        # Process red fighter
         if row['RedFighter'] not in fighters:
             total_wins = row['RedWins']
             ko_ratio = row['RedWinsByKO'] / total_wins if total_wins > 0 else 0
@@ -42,12 +37,11 @@ def create_fighter_database():
                 'avg_sub_att': row['RedAvgSubAtt'],
                 'ko_ratio': ko_ratio,
                 'sub_ratio': sub_ratio,
-                'defense': row.get('RedAvgSigStrAbs', 2.5),  # Default if not available
+                'defense': row.get('RedAvgSigStrAbs', 2.5),
                 'total_fights': row['RedTotalRoundsFought'],
                 'win_streak': row['RedCurrentWinStreak']
             }
 
-        # Process blue fighter
         if row['BlueFighter'] not in fighters:
             total_wins = row['BlueWins']
             ko_ratio = row['BlueWinsByKO'] / total_wins if total_wins > 0 else 0
@@ -65,7 +59,7 @@ def create_fighter_database():
                 'avg_sub_att': row['BlueAvgSubAtt'],
                 'ko_ratio': ko_ratio,
                 'sub_ratio': sub_ratio,
-                'defense': row.get('BlueAvgSigStrAbs', 2.5),  # Default if not available
+                'defense': row.get('BlueAvgSigStrAbs', 2.5),
                 'total_fights': row['BlueTotalRoundsFought'],
                 'win_streak': row['BlueCurrentWinStreak']
             }
@@ -74,7 +68,6 @@ def create_fighter_database():
     fighter_df.index.name = 'name'
     fighter_df.reset_index(inplace=True)
 
-    # Save to database
     fighter_df.to_sql('fighters', conn, if_exists='replace', index=False)
 
     print(f"Fighter database created with {len(fighter_df)} fighters in SQLite")

@@ -35,7 +35,6 @@ const RegisterForm = () => {
 
     try {
       await register(username, password);
-      // NEW: Redirect to main page after successful registration and login
       navigate('/');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');

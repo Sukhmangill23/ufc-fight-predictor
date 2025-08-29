@@ -17,7 +17,6 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Here you could add token validation request to backend
       setCurrentUser({ token });
     }
     setLoading(false);
@@ -38,11 +37,10 @@ export function AuthProvider({ children }) {
 
       const data = await response.json();
 
-      // Automatically log in after successful registration
       if (data.access_token) {
         localStorage.setItem('token', data.access_token);
         setCurrentUser({ token: data.access_token });
-        navigate('/');  // Redirect to main page
+        navigate('/');
       }
 
       return data;
@@ -70,7 +68,7 @@ export function AuthProvider({ children }) {
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
       setCurrentUser({ token: data.access_token });
-      navigate('/');  // Redirect to main page after login
+      navigate('/');
       return data;
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
@@ -83,7 +81,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('token');
     setCurrentUser(null);
-    navigate('/login');  // Redirect to login page after logout
+    navigate('/login');
   };
 
   const value = {

@@ -19,8 +19,8 @@ const SearchBar = ({ corner, onSelectFighter }) => {
   }, [term]);
 
 const handleSelect = (fighter) => {
-  setShowResults(false);   // ✅ Just hide the dropdown
-  onSelectFighter(fighter, corner); // ✅ Send selection to parent
+  setShowResults(false);
+  onSelectFighter(fighter, corner);
 };
 
   return (

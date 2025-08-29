@@ -16,9 +16,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 main = Blueprint('main', __name__)
 
-# ---------------------------------------------------------------------------
-# CONSTANTS
-# ---------------------------------------------------------------------------
+
 WEIGHT_CLASSES = {
     'Strawweight': 0,
     'Flyweight': 1,
@@ -42,23 +40,19 @@ FEATURES = [
 
 MAX_DIVISION_GAP = 2
 
-# ---------------------------------------------------------------------------
-# MODEL
-# ---------------------------------------------------------------------------
 model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'ufc_predictor_v4.pkl')
 model = joblib.load(model_path)
 
-# Database path
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
 
 
 
 
 # Add new routes
+
 @main.route('/register', methods=['POST', 'OPTIONS'])
 def register():
     if request.method == 'OPTIONS':
-        # Typically, just return a 200 OK with appropriate CORS headers
         return '', 200
     data = request.get_json()
     if not data or 'username' not in data or 'password' not in data:
@@ -71,16 +65,14 @@ def login():
     if not data or 'username' not in data or 'password' not in data:
         return jsonify({'error': 'Missing username or password'}), 400
     return authenticate_user(data['username'], data['password'])
-# ---------------------------------------------------------------------------
+
 # HELPER FUNCTIONS
-# ---------------------------------------------------------------------------
+
 def compute_model_features(red_stats, blue_stats, data):
     """Compute model features from fighter stats and form data"""
-    # Get weight class values
     red_wc = red_stats.get('weight_class', 'Lightweight')
     blue_wc = blue_stats.get('weight_class', 'Lightweight')
 
-    # Create features dictionary
     features = {
         'RedOdds': red_stats.get('avg_sig_str', 0) * -1,
         'BlueOdds': blue_stats.get('avg_sig_str', 0),
@@ -98,7 +90,6 @@ def compute_model_features(red_stats, blue_stats, data):
                          (red_stats.get('avg_td_pct', 0) - blue_stats.get('avg_td_pct', 0))
     }
 
-    # Compute derived features
     features['OddsRatio'] = features['RedOdds'] / features['BlueOdds'] if features['BlueOdds'] != 0 else 1
     features['SizeAdvRed'] = (features['HeightAdvRed'] + features['ReachAdvRed']) / 2
 
@@ -109,10 +100,8 @@ def get_conn():
     """Get database connection"""
     return sqlite3.connect(DB_PATH)
 
-
-# ---------------------------------------------------------------------------
 # ROUTES
-# ---------------------------------------------------------------------------
+
 @main.route('/')
 def home():
     return "UFC Predictor API"
@@ -139,7 +128,6 @@ def get_fighter_stats_route():
     if not stats:
         return jsonify({'error': 'Fighter not found'})
 
-    # Normalize property names
     normalized_stats = {
         'name': stats.get('name', fighter_name),
         'height': stats.get('height', stats.get('height_cms', 0)),
@@ -171,7 +159,6 @@ def predict():
         red_stats = fill_missing_stats(red_stats_raw)
         blue_stats = fill_missing_stats(blue_stats_raw)
 
-        # Validation checks
         if data['red_fighter'].strip().lower() == data['blue_fighter'].strip().lower():
             return jsonify({'error': 'Please select two different fighters'}), 400
 
@@ -185,19 +172,16 @@ def predict():
                 f"The simulator currently supports opponents within {MAX_DIVISION_GAP} divisions of each other.")
             return jsonify({'error': msg}), 400
 
-        # Feature engineering
         features = compute_model_features(red_stats, blue_stats, data)
         input_data = pd.DataFrame([features])
         model_input = input_data[FEATURES]
 
-        # Make prediction
         prediction = model.predict(model_input)[0]
         prediction_proba = model.predict_proba(model_input)[0]
 
         winner = data['red_fighter'] if prediction == 1 else data['blue_fighter']
         confidence = prediction_proba[1] if prediction == 1 else prediction_proba[0]
 
-        # Store prediction in database
         try:
             conn = get_conn()
             cursor = conn.cursor()
@@ -234,11 +218,9 @@ def prediction_insights():
         if not red_stats or not blue_stats:
             return jsonify({'error': 'Fighter not found'}), 400
 
-        # Load feature importance
         importance_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'feature_importance.pkl')
         feature_importance = joblib.load(importance_path)
 
-        # Define attributes to compare
         attributes = {
             'Height': ('height', 'HeightAdvRed'),
             'Reach': ('reach', 'ReachAdvRed'),
@@ -263,7 +245,6 @@ def prediction_insights():
                 'influence': feature_importance.get(feature_key, 0)
             })
 
-        # Sort by influence
         insights.sort(key=lambda x: abs(x['influence']), reverse=True)
 
         return jsonify({'insights': insights[:5]})
@@ -278,7 +259,6 @@ def fighter_analytics():
         conn = get_conn()
         cursor = conn.cursor()
 
-        # Get aggregated fighter stats
         cursor.execute("""
                        SELECT ROUND(AVG(height), 1)       AS avg_height,
                               ROUND(AVG(reach), 1)        AS avg_reach,
@@ -288,7 +268,6 @@ def fighter_analytics():
                        """)
         result = cursor.fetchone()
 
-        # Get weight class distribution
         cursor.execute("""
                        SELECT weight_class, COUNT(*) as count
                        FROM fighters
@@ -325,7 +304,6 @@ def prediction_history():
     try:
         conn = get_conn()
 
-        # Get prediction metrics
         cursor = conn.cursor()
         cursor.execute("""
                        SELECT COUNT(*)                                         as total_predictions,
@@ -335,7 +313,6 @@ def prediction_history():
                        """)
         metrics = cursor.fetchone()
 
-        # Calculate recent accuracy (last 30 predictions)
         cursor.execute("""
                        SELECT AVG(CASE WHEN correct = 1 THEN 1.0 ELSE 0.0 END)
                        FROM (SELECT correct
@@ -346,7 +323,6 @@ def prediction_history():
                        """)
         recent_accuracy = cursor.fetchone()[0]
 
-        # Get recent predictions
         cursor.execute("""
                        SELECT red_fighter,
                               blue_fighter,
@@ -364,28 +340,23 @@ def prediction_history():
         for row in cursor.fetchall():
             recent_predictions.append(dict(zip(columns, row)))
 
-        # Generate accuracy history (simulated)
         accuracy_history = [random.uniform(70, 90) for _ in range(12)]
 
-        # Generate outcome distribution
         outcome_distribution = {
             'knockouts': random.randint(30, 50),
             'submissions': random.randint(20, 40),
             'decisions': random.randint(20, 40)
         }
 
-        # Generate confidence distribution
         confidence_distribution = {
             'high': random.randint(60, 80),
             'medium': random.randint(15, 30),
             'low': random.randint(5, 15)
         }
 
-        # Generate accuracy by weight class
         weight_classes = ['Lightweight', 'Welterweight', 'Middleweight', 'Heavyweight', 'Featherweight']
         accuracy_by_weight_class = {wc: random.randint(65, 90) for wc in weight_classes}
 
-        # Generate success factors
         success_factors = [
             {'factor': 'Striking Accuracy', 'impact': random.randint(70, 90)},
             {'factor': 'Takedown Defense', 'impact': random.randint(60, 85)},
@@ -454,7 +425,6 @@ def top_performers():
             "Henry Cejudo"
         ]
 
-        # Generate random stats for each fighter
         top_fighters = []
         for fighter in fighters:
             top_fighters.append({
@@ -466,7 +436,6 @@ def top_performers():
                 'defense': random.randint(80, 95)
             })
 
-        # Generate top performers by category
         most_knockouts = []
         for i in range(5):
             most_knockouts.append({
@@ -531,7 +500,6 @@ def fighter_analytics_details():
         conn = get_conn()
         cursor = conn.cursor()
 
-        # Get basic fighter stats
         cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
         result = cursor.fetchone()
 
@@ -540,9 +508,8 @@ def fighter_analytics_details():
 
         columns = [col[0] for col in cursor.description]
         stats = dict(zip(columns, result))
-        exact_name = stats['name']  # Get the exact name from database
+        exact_name = stats['name']
 
-        # CORRECTED: Get fight history with proper result calculation
         cursor.execute("""
             SELECT 
                 f.Date, 
@@ -576,7 +543,6 @@ def fighter_analytics_details():
                 'rounds': row[5]
             })
 
-        # CORRECTED: Performance metrics calculation
         cursor.execute("""
             SELECT 
                 COUNT(*) AS total_fights,

@@ -7,7 +7,6 @@ def init_database():
     db_path = os.path.join(os.path.dirname(__file__), 'ufc.db')
     conn = sqlite3.connect(db_path)
 
-    # Create fighters table
     conn.execute('''CREATE TABLE IF NOT EXISTS fighters
                     (
                         name
@@ -38,7 +37,6 @@ def init_database():
                         INTEGER
                     )''')
 
-    # Create fights table
     conn.execute('''CREATE TABLE IF NOT EXISTS fights
     (
         id
@@ -112,7 +110,6 @@ def init_database():
                     )''')
 
 
-    # Create indexes
     conn.execute("CREATE INDEX IF NOT EXISTS idx_fighters_name ON fighters (name)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_fights_date ON fights (Date)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_predictions_timestamp ON predictions (timestamp)")
@@ -133,13 +130,11 @@ def import_csv_data():
     db_path = os.path.join(os.path.dirname(__file__), 'ufc.db')
     conn = sqlite3.connect(db_path)
 
-    # Import fighter data
     fighter_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'fighter_db.csv')
     if os.path.exists(fighter_path):
         df = pd.read_csv(fighter_path)
         df.to_sql('fighters', conn, if_exists='replace', index=False)
 
-    # Import fight data
     fights_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'ufc_fights.csv')
     if os.path.exists(fights_path):
         df = pd.read_csv(fights_path)

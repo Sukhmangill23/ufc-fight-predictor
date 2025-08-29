@@ -8,7 +8,6 @@ const FighterCard = ({ corner, stats, searchTerm, setSearchTerm, onSelectFighter
   const cornerClass = corner === 'red' ? 'red-corner' : 'blue-corner';
   const cornerTitle = corner === 'red' ? 'RED CORNER' : 'BLUE CORNER';
 
-  // Check if stats are available and have data
   const hasStats = stats && Object.keys(stats).length > 0;
 
 return (

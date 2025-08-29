@@ -19,7 +19,6 @@ body {
   min-height: 100vh;
 }
 
-/* Selection styling */
 ::selection {
   background: #d4af37;
   color: #000;
@@ -30,7 +29,6 @@ body {
   color: #000;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -48,7 +46,6 @@ body {
   background: #c5a028;
 }
 
-/* Input placeholder styling */
 ::placeholder {
   color: #888 !important;
 }

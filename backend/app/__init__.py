@@ -7,10 +7,9 @@ import os
 
 def create_app():
     app = Flask(__name__)
-    app.config['JWT_SECRET_KEY'] = 'your_strong_secret_key_here'  # Change this in production!
+    app.config['JWT_SECRET_KEY'] = 'your_strong_secret_key_here'
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 
-    # Enhanced CORS configuration
     CORS(app, resources={
         r"/*": {
             "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
@@ -19,11 +18,9 @@ def create_app():
         }
     })
 
-    # Register blueprints
     from .routes import main
     app.register_blueprint(main)
 
-    # Add CORS headers to every response
     @app.after_request
     def add_cors_headers(response):
         response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'

@@ -130,7 +130,7 @@
 .advantage-bar.red-bar { background:linear-gradient(90deg, #a00, #f00); }
 .advantage-bar.blue-bar { background: linear-gradient(90deg, #006, #00a); }
 
-/* === FINAL COMPARISON === */
+
 .final-score .score-circle {
   width: 70px;
   height: 70px;
@@ -152,9 +152,8 @@
 .red-highlight { color: #e74c3c; }
 .blue-highlight { color: #3498db; }
 
-/* Final comparison container */
 .final-container {
-  background: #1a1a1a !important;  /* match result-container */
+  background: #1a1a1a !important;
   border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid #333;
@@ -170,14 +169,12 @@
   box-shadow: 0 0 10px rgba(0,0,0,0.6);
 }
 
-/* Red advantage */
 .advantage-red {
   background: #e74c3c;
   color: #fff;
   box-shadow: 0 0 12px rgba(231, 76, 60, 0.8);
 }
 
-/* Blue advantage */
 .advantage-blue {
   background: #3498db;
   color: #fff;
@@ -190,14 +187,13 @@
 }
 
 .red-bar {
-  background-color: #e74c3c; /* UFC red */
+  background-color: #e74c3c;
 }
 
 .blue-bar {
-  background-color: #3498db; /* UFC blue */
+  background-color: #3498db;
 }
 
-/* Make advantage fighter label match color */
 .red-fighter {
   color: #e74c3c;
   font-weight: bold;
@@ -208,39 +204,36 @@
   font-weight: bold;
 }
 .advantage-numbers span:first-child {
-  color: #e74c3c; /* Red fighter’s numbers */
+  color: #e74c3c;
   font-weight: bold;
 }
 
 .advantage-numbers span:last-child {
-  color: #3498db; /* Blue fighter’s numbers */
+  color: #3498db;
   font-weight: bold;
 }
-/* Outer container (red or blue background) */
+
 .advantage-bar-container {
   height: 12px;
   border-radius: 6px;
   margin-top: 4px;
   overflow: hidden;
-  background-color: #222; /* fallback */
+  background-color: #222;
 }
 
-/* If red fighter has advantage */
 .red-container {
   background-color: #e74c3c;
 }
 
-/* If blue fighter has advantage */
 .blue-container {
   background-color: #3498db;
 }
 
-/* Inner bar (black/white overlay to show "fill") */
 .advantage-bar-fill {
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.3); /* translucent fill */
+  background-color: rgba(255, 255, 255, 0.3);
 }
-/* Outer container (full width, background light red/blue) */
+
 .advantage-bar-container {
   height: 12px;
   border-radius: 6px;
@@ -249,13 +242,12 @@
 }
 
 .red-container {
-  background-color: rgba(231, 76, 60, 0.3); /* light red */
+  background-color: rgba(231, 76, 60, 0.3);
 }
 
 .blue-container {
-  background-color: rgba(52, 152, 219, 0.3); /* light blue */
+  background-color: rgba(52, 152, 219, 0.3);
 }
-
 
 .advantage-bar-container {
   display: flex;
@@ -265,34 +257,34 @@
   overflow: hidden;
 }
 
-/* Red fighter (Islam) */
 .red-fill {
-  background-color: linear-gradient(90deg, #a00, #f00); /* radar chart red */
+  background-color: linear-gradient(90deg, #a00, #f00);
   height: 100%;
 }
 
-/* Blue fighter (Dustin) */
 .blue-fill {
-  background-color: linear-gradient(90deg, #006, #00a); /* radar chart blue */
+  background-color: linear-gradient(90deg, #006, #00a);
   height: 100%;
 }
-/* Red fighter: square right edge */
+
 .red-progress {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
 
-/* Blue fighter: square left edge */
 .blue-progress {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
 }
 .red-fill2 {
-  background-color: #e74c3c; /* radar chart red */
+  background-color: #e74c3c;
   height: 100%
 }
 
 .blue-fill2 {
-  background-color: #3498db; /* radar chart blue */
+  background-color: #3498db;
   height: 100%;
+}
+.empty-state {
+  color: black;
 }

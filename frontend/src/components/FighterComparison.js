@@ -131,57 +131,110 @@ const FighterComparison = () => {
     );
   };
 
-  // Render advantage cards
-  const renderAdvantageCards = () => {
-    if (!stats1 || !stats2) return null;
+const renderAdvantageCards = () => {
+  if (!stats1 || !stats2) return null;
 
-    const advantages = [
-      { name: 'Striking Power', key: 'avg_sig_str', icon: 'fa-fist-raised' },
-      { name: 'Grappling', key: 'avg_td_pct', icon: 'fa-wrestling' },
-      { name: 'Submissions', key: 'avg_sub_att', icon: 'fa-lock' },
-      { name: 'Experience', key: 'total_fights', icon: 'fa-history' }
-    ];
+  const advantages = [
+    { name: 'Striking Power', key: 'avg_sig_str', icon: 'fa-fist-raised' },
+    { name: 'Grappling', key: 'avg_td_pct', icon: 'fa-wrestling' },
+    { name: 'Submissions', key: 'avg_sub_att', icon: 'fa-lock' },
+    { name: 'Experience', key: 'total_fights', icon: 'fa-history' }
+  ];
 
-    return (
-      <div className="advantages-container">
-        {advantages.map(adv => {
-          const advantage = calculateAdvantage(stats1[adv.key], stats2[adv.key]);
-          if (advantage.value === 0) return null;
+  return (
+    <div className="advantages-container">
+      {advantages.map(adv => {
+        const advantage = calculateAdvantage(stats1[adv.key], stats2[adv.key]);
+        if (advantage.value === 0) return null;
 
-          return (
-              <div key={adv.key} className="advantage-card">
-                <div className="advantage-header">
-                  <i className={`fas ${adv.icon} advantage-icon ${advantage.winner === 1 ? 'red-icon' : 'blue-icon'}`}></i>
-                  <h5 className="advantage-name">{adv.name}</h5>
-                </div>
-                <div className="advantage-value">
-                  <span className="advantage-label">Advantage:</span>
-                  <div
-                      className={`advantage-fighter ${advantage.winner === 1 ? 'red-fighter' : 'blue-fighter'}`}>
-                    {advantage.winner === 1 ? fighter1 : fighter2}
-                  </div>
-                </div>
-                <div className="advantage-bar-container">
-                  <div
-                      className="red-fill2"
-                      style={{width: `${(stats1[adv.key] / (stats1[adv.key] + stats2[adv.key])) * 100}%`}}
-                  ></div>
-                  <div
-                      className="blue-fill2"
-                      style={{width: `${(stats2[adv.key] / (stats1[adv.key] + stats2[adv.key])) * 100}%`}}
-                  ></div>
-                </div>
-
-<div className="advantage-numbers">
-  <span className="me-3">{stats1[adv.key] || 0}</span>
-  <span>{stats2[adv.key] || 0}</span>
-</div>
+        return (
+          <div key={adv.key} className="advantage-card">
+            <div className="advantage-header">
+              <i
+                className={`fas ${adv.icon} advantage-icon ${
+                  advantage.winner === 1 ? 'red-icon' : 'blue-icon'
+                }`}
+              ></i>
+              <h5 className="advantage-name">{adv.name}</h5>
+            </div>
+            <div className="advantage-value">
+              <span className="advantage-label">Advantage:</span>
+              <div
+                className={`advantage-fighter ${
+                  advantage.winner === 1 ? 'red-fighter' : 'blue-fighter'
+                }`}
+              >
+                {advantage.winner === 1 ? fighter1 : fighter2}
               </div>
-          );
-        })}
-      </div>
+            </div>
+            <div className="advantage-bar-container">
+              <div
+                className="red-fill2"
+                style={{
+                  width: `${(stats1[adv.key] / (stats1[adv.key] + stats2[adv.key])) * 100}%`,
+                }}
+              ></div>
+              <div
+                className="blue-fill2"
+                style={{
+                  width: `${(stats2[adv.key] / (stats1[adv.key] + stats2[adv.key])) * 100}%`,
+                }}
+              ></div>
+            </div>
+
+            <div className="advantage-numbers">
+              <span className="me-3">{stats1[adv.key] || 0}</span>
+              <span>{stats2[adv.key] || 0}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ✅ Render summary (moved OUTSIDE)
+const renderSummary = () => {
+  if (!fighter1 || !fighter2 || !stats1 || !stats2) return null;
+
+  const categories = [
+    'avg_sig_str',
+    'avg_td_pct',
+    'avg_sub_att',
+    'total_fights',
+    'ko_wins',
+    'win_streak'
+  ];
+
+  let score1 = 0;
+  let score2 = 0;
+
+  categories.forEach(key => {
+    const adv = calculateAdvantage(stats1[key], stats2[key]);
+    if (adv.winner === 1) score1++;
+    if (adv.winner === 2) score2++;
+  });
+
+  if (score1 > score2) {
+    return (
+      <p className="summary-text text-center mt-4">
+        Based on the overall stats, <span className="red-fighter">{fighter1}</span> has the edge in this matchup.
+      </p>
     );
-  };
+  } else if (score2 > score1) {
+    return (
+      <p className="summary-text text-center mt-4">
+        Based on the overall stats, <span className="blue-fighter">{fighter2}</span> appears stronger in this matchup.
+      </p>
+    );
+  } else {
+    return (
+      <p className="summary-text text-center mt-4">
+        This looks like an evenly matched fight — too close to call!
+      </p>
+    );
+  }
+};
 
   return (
       <div className="card w-100">
@@ -200,53 +253,55 @@ const FighterComparison = () => {
               <h3 className="corner-title">Red Corner</h3>
               <div className="search-container">
                 <input
-                  type="text"
-                  className="search-input"
-                  value={fighter1}
-                  onChange={(e) => handleSearch1(e.target.value)}
-                  placeholder="Search fighter..."
+                    type="text"
+                    className="search-input"
+                    value={fighter1}
+                    onChange={(e) => handleSearch1(e.target.value)}
+                    placeholder="Search fighter..."
                 />
 
                 {showResults1 && searchResults1.length > 0 && (
-                  <div className="search-results">
-                    {searchResults1.map((fighter, index) => (
-                      <div
-                        key={index}
-                        className="search-item"
-                        onClick={() => handleSelectFighter1(fighter)}
-                      >
-                        <i className="fas fa-user me-2"></i>
-                        {fighter}
-                      </div>
-                    ))}
-                  </div>
+                    <div className="search-results">
+                      {searchResults1.map((fighter, index) => (
+                          <div
+                              key={index}
+                              className="search-item"
+                              onClick={() => handleSelectFighter1(fighter)}
+                          >
+                            <i className="fas fa-user me-2"></i>
+                            {fighter}
+                          </div>
+                      ))}
+                    </div>
                 )}
               </div>
               {stats1 && (
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-value">{stats1.height || 'N/A'}</div>
-                    <div className="stat-label">Height</div>
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <div className="stat-value">  {stats1.height ? `${stats1.height} cm` : 'N/A'}</div>
+                      <div className="stat-label">Height</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-value">{stats1.reach ? `${stats1.reach} cm` : 'N/A'}</div>
+                      <div className="stat-label">Reach</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-value">{stats1.age || 'N/A'}</div>
+                      <div className="stat-label">Age</div>
+                    </div>
+                    <div className="stat-card">
+                      <div
+                          className="stat-value">{stats1.win_streak || '0'}</div>
+                      <div className="stat-label">Win Streak</div>
+                    </div>
                   </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{stats1.reach || 'N/A'}</div>
-                    <div className="stat-label">Reach</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{stats1.age || 'N/A'}</div>
-                    <div className="stat-label">Age</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{stats1.win_streak || '0'}</div>
-                    <div className="stat-label">Win Streak</div>
-                  </div>
-                </div>
               )}
             </div>
           </div>
 
           {/* VS Badge */}
-          <div className="col-md-2 d-flex align-items-center justify-content-center">
+          <div
+              className="col-md-2 d-flex align-items-center justify-content-center">
             <div className="vs-badge">VS</div>
           </div>
 
@@ -281,11 +336,11 @@ const FighterComparison = () => {
               {stats2 && (
                 <div className="stats-grid">
                   <div className="stat-card">
-                    <div className="stat-value">{stats2.height || 'N/A'}</div>
+                    <div className="stat-value">{stats2.height ? `${stats2.height} cm` : 'N/A'}</div>
                     <div className="stat-label">Height</div>
                   </div>
                   <div className="stat-card">
-                    <div className="stat-value">{stats2.reach || 'N/A'}</div>
+                    <div className="stat-value">  {stats2.reach ? `${stats2.reach} cm` : 'N/A'}</div>
                     <div className="stat-label">Reach</div>
                   </div>
                   <div className="stat-card">
@@ -340,6 +395,7 @@ const FighterComparison = () => {
 
               {/* Advantage Indicators */}
               {renderAdvantageCards()}
+      {renderSummary()}
             </div>
           </div>
         )}

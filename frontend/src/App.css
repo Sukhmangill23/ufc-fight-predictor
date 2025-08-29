@@ -1,9 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Montserrat:wght@400;500;600&display=swap');
 
-/* Updated Color Variables for Better Contrast */
 :root {
-  --ufc-red: #e74c3c;     /* Keep for red corner but less intense */
-  --ufc-blue: #3498db;    /* Keep for blue corner but less intense */
+  --ufc-red: #e74c3c;
+  --ufc-blue: #3498db;
   --ufc-light: #ffffff;
   --ufc-dark-bg: #0a0a0a;
   --ufc-card-bg: #1a1a1a;
@@ -15,7 +14,6 @@
   --ufc-gray: #6a7989;
 }
 
-/* Global Styles */
 * {
   margin: 0;
   padding: 0;
@@ -41,14 +39,11 @@ body {
   min-height: 100vh;
 }
 
-
-/* Container Optimization */
 .container {
   max-width: 1600px;
   padding: 1rem;
 }
 
-/* Card Design */
 .card {
   background: var(--ufc-card-bg);
   border-radius: 12px;
@@ -78,11 +73,9 @@ body {
 .card-body {
   overflow-y: auto;
   flex-grow: 1;
-  min-height: 0; /* IMPORTANT: allows flex child to shrink inside parent */
+  min-height: 0;
 }
 
-
-/* Horizontal Layout for Fighters */
 .fighters-container {
   display: flex;
   flex-wrap: wrap;
@@ -97,7 +90,6 @@ body {
   gap: 20px;
 }
 
-/* Fighter Cards */
 .fighter-card {
   background: var(--ufc-card-bg);
   border-radius: 12px;
@@ -121,16 +113,14 @@ body {
   border-top: 4px solid var(--ufc-blue);
 }
 
-
-/* Corner Title */
 .corner-title {
   text-align: center;
   font-size: 1.3rem;
   margin-bottom: 1rem;
   font-weight: 600;
-  color: var(--ufc-text-light);
   position: relative;
   padding-bottom: 8px;
+  color: var(--ufc-text-light);
 }
 
 .corner-title::after {
@@ -145,14 +135,13 @@ body {
 }
 
 .red-corner .corner-title {
-  color: #ff8a8a;
+  color: #e74c3c !important;
 }
 
 .blue-corner .corner-title {
-  color: #8aafff;
+  color: #3498db !important;
 }
 
-/* Stats Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -191,7 +180,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* VS Badge - Centered */
 .vs-container {
   display: flex;
   align-items: center;
@@ -199,9 +187,6 @@ body {
   min-width: 100px;
 }
 
-
-
-/* Fight Details */
 .fight-details {
   background:  rgba(50, 50, 50, 0.5);
   border-radius: 12px;
@@ -242,7 +227,6 @@ body {
   background: rgba(50, 50, 50, 0.8);
 }
 
-/* Fix for text input visibility */
 input, textarea, select {
   caret-color: var(--bs-white);
 }
@@ -269,8 +253,6 @@ input::selection, textarea::selection {
   align-items: center;
 }
 
-/* Prediction Button */
-/* In App.css, update the predict button */
 .btn-predict {
   background:  rgba(50, 50, 50, 0.5);
   border: 1px solid #444;
@@ -278,12 +260,12 @@ input::selection, textarea::selection {
   font-weight: bold;
   border-radius: 12px;
   padding: 12px 20px;
-  width: 100%; /* optional: makes it full width like cards */
+  width: 100%;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .btn-predict:hover {
-  background: #1a1a1a; /* slightly lighter/darker than --ufc-card */
+  background: #1a1a1a;
   transform: translateY(-2px);
 }
 
@@ -297,10 +279,6 @@ input::selection, textarea::selection {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-
-
-
 
 .winner-name {
   font-family: 'Oswald', sans-serif;
@@ -318,7 +296,6 @@ input::selection, textarea::selection {
   color: var(--bs-white);
 }
 
-/* Probabilities */
 .probabilities {
   display: flex;
   gap: 15px;
@@ -356,7 +333,6 @@ input::selection, textarea::selection {
   color: var(--ufc-text-light);
 }
 
-/* Fighter Selection - Fixed Search */
 .search-container {
   position: relative;
   margin-bottom: 15px;
@@ -421,7 +397,6 @@ input::selection, textarea::selection {
   color: var(--ufc-text-light);
 }
 
-/* Status Indicators */
 .loading, .error {
   text-align: center;
   padding: 25px;
@@ -442,7 +417,6 @@ input::selection, textarea::selection {
   font-weight: 600;
 }
 
-/* Fighter Placeholder */
 .fighter-placeholder {
   text-align: center;
   color: var(--ufc-gray);
@@ -460,7 +434,6 @@ input::selection, textarea::selection {
   opacity: 0.3;
 }
 
-/* Fighter Name Display */
 .fighter-name {
   font-size: 1.3rem;
   font-weight: 600;
@@ -472,14 +445,13 @@ input::selection, textarea::selection {
   border-radius: 6px;
 }
 
-/* PREDICTION INSIGHTS FIXES - CRITICAL */
 .insights-card {
   background: #fff;
   border-radius: 10px;
   padding: 20px;
   margin: 20px 0;
   border: 1px solid #333;
-  color: #ffffff !important; /* Force white text */
+  color: #ffffff !important;
 }
 
 .insights-card h2, .insights-card h3 {
@@ -582,14 +554,12 @@ input::selection, textarea::selection {
   border-radius: 4px;
 }
 
-/* Specific fixes for prediction numbers */
 .influence-value, .prob-value {
   color: black  !important;
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   font-weight: 700;
 }
 
-/* Responsive Design */
 @media (min-width: 1200px) {
   .fighters-row {
     flex-direction: row;
@@ -693,7 +663,6 @@ input::selection, textarea::selection {
   }
 }
 
-/* Text visibility fixes */
 .search-input {
   color: #f5f5f5 !important;
 }
@@ -791,7 +760,7 @@ input::selection, textarea::selection {
 .stat-value {
   color: black !important;
   font-size: 1.4rem;
-  font-weight: 400; /* Normal weight */
+  font-weight: 400;
   margin-bottom: 5px;
 }
 
@@ -802,12 +771,10 @@ input::selection, textarea::selection {
   letter-spacing: 1px;
 }
 
-/* Make sure all text in fighter cards is visible */
 .fighter-card * {
   color: #ffffff !important;
 }
 
-/* Specific fix for search results */
 .search-results {
   background: #222 !important;
   border: 1px solid #444 !important;
@@ -821,8 +788,7 @@ input::selection, textarea::selection {
 .search-item:hover {
   background: #333 !important;
 }
-/* src/index.css */
-/* Full-viewport layout */
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -833,7 +799,6 @@ html, body, #root {
   overflow-x: hidden;
 }
 
-/* UFC Theme Colors */
 :root {
   --ufc-red: #c00a0a;
   --ufc-blue: #0a4fd2;
@@ -843,13 +808,11 @@ html, body, #root {
   --ufc-border: #333333;
 }
 
-/* Text selection */
 ::selection {
   background: var(--bs-white);
   color: black;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -887,17 +850,17 @@ body {
   min-height: 100vh;
 }
 
-/* Selection styling */
+
 ::selection {
   background: white;
   color: #000;
 }
 .card-body {
   flex-grow: 1;
-  min-height: 0; /* REQUIRED for nested flex scrolling */
-  overflow-y: auto; /* enables scroll for long content */
+  min-height: 0;
+  overflow-y: auto;
 }
-/* Ensure the full viewport height is available */
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -927,7 +890,6 @@ html, body, #root {
   color: #000;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -945,12 +907,10 @@ html, body, #root {
   background: white;
 }
 
-/* Input placeholder styling */
 ::placeholder {
   color: #888 !important;
 }
-/* src/App.css */
-/* Full-screen layout */
+
 .overlay {
   min-height: 100vh;
   background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
@@ -967,7 +927,6 @@ html, body, #root {
   padding: 20px;
 }
 
-/* Navigation Tabs */
 .tabs {
   display: flex;
   justify-content: center;
@@ -1004,7 +963,6 @@ html, body, #root {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Fighter Cards */
 .fighter-card {
   background: rgba(50, 50, 50, 0.5);
   border-radius: 12px;
@@ -1042,7 +1000,6 @@ html, body, #root {
   text-transform: uppercase;
 }
 
-/* Stats Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1068,10 +1025,6 @@ html, body, #root {
   text-transform: uppercase;
 }
 
-/* VS Badge */
-
-
-/* Fight Details */
 .fight-details {
   display: flex;
   flex-wrap: wrap;
@@ -1101,9 +1054,6 @@ html, body, #root {
   font-size: 16px;
 }
 
-
-
-/* Prediction Button */
 .btn {
   width: 100%;
   padding: 15px;
@@ -1130,7 +1080,6 @@ html, body, #root {
   transform: translateY(1px);
 }
 
-/* Prediction Result */
 .result-container {
   margin-top: 20px;
   padding: 20px;
@@ -1189,7 +1138,6 @@ html, body, #root {
   border: 1px solid var(--ufc-blue);
 }
 
-/* Insights */
 .insights-card {
   margin-top: 20px;
   padding: 20px;
@@ -1214,7 +1162,6 @@ html, body, #root {
   border: 1px solid #444;
 }
 
-/* Responsive Design */
 @media (max-width: 992px) {
   .col-md-5, .col-md-2 {
     flex: 0 0 100%;
@@ -1248,7 +1195,7 @@ html, body, #root {
     margin: 5px 0;
   }
 }
-/* Fighter Comparison */
+
 .comparison-tool {
   padding: 20px;
 }
@@ -1280,34 +1227,26 @@ html, body, #root {
   width: 100px;
   height: 100px;
 
-  /* Neutral gradient for UFC theme */
-  background: linear-gradient(135deg, #000, #555); /* black → dark grey */
+  background: linear-gradient(135deg, #000, #555);
 
-  color: #fff; /* white text */
+  color: #fff;
   font-weight: 800;
   font-size: 1.2rem;
   border-radius: 50%;
 
-  /* Subtle neutral glow */
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.15),
-              0 0 15px rgba(0, 0, 0, 0.4);
+  0 0 15px rgba(0, 0, 0, 0.4);
 
-  border: 2px solid #fff; /* clean white border */
+  border: 2px solid #fff;
 }
-
-/* FighterAnalyticsPage.css */
-
-/* Main container */
 .fighter-analytics-container {
   height: 100vh;
 }
 
-/* Card body with scroll */
 .fighter-card-body {
   overflow-y: auto;
 }
 
-/* Search suggestions */
 .suggestions-box {
   max-height: 200px;
   overflow-y: auto;
@@ -1326,7 +1265,6 @@ html, body, #root {
   background-color: var(--hover-bg);
 }
 
-/* Fighter header */
 .fighter-header {
   background-color: var(--dark-bg);
   border-radius: 0.375rem;
@@ -1343,7 +1281,7 @@ html, body, #root {
   font-size: 0.875rem;
 }
 
-/* Metric values */
+
 .metric-value {
   font-size: 2.5rem;
   font-weight: 300;
@@ -1374,7 +1312,7 @@ html, body, #root {
   color: var(--metric-dec);
 }
 
-/* Table styles */
+
 .fight-table {
   background-color: var(--dark-bg);
 }
@@ -1383,12 +1321,10 @@ html, body, #root {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Empty state */
 .empty-state {
   color: var(--text-light);
 }
 
-/* Color variables for theming */
 :root {
   --dark-bg: #333;
   --darker-bg: #222;
@@ -1397,14 +1333,14 @@ html, body, #root {
   --hover-bg: #444;
   --accent-color: orange;
   --metric-total: orange;
-  --metric-wins: #28a745; /* Green for wins */
-  --metric-losses: #dc3545; /* Red for losses */
-  --metric-ko: #dc3545; /* Red for KO */
-  --metric-sub: #007bff; /* Blue for submissions */
-  --metric-dec: #17a2b8; /* Teal for decisions */
+  --metric-wins: #28a745;
+  --metric-losses: #dc3545;
+  --metric-ko: #dc3545;
+  --metric-sub: #007bff;
+  --metric-dec: #17a2b8;
 }
 
-/* In App.css, add logout button styles */
+
 .btn-logout {
   background: linear-gradient(90deg, #444, #666);
   border: none;
@@ -1427,9 +1363,8 @@ html, body, #root {
   transform: translateY(1px);
 }
 
-/* In App.css, add analyze button styles */
 .btn-analyze {
-  background: linear-gradient(90deg, #444, #666);
+  background: rgba(50, 50, 50, 0.5);
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
@@ -1438,11 +1373,11 @@ html, body, #root {
   color: white;
   transition: all 0.3s;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  min-width: 100px; /* Ensure consistent width */
+  min-width: 100px;
 }
 
 .btn-analyze:hover {
-  background: linear-gradient(90deg, #555, #777);
+  background: rgba(50, 50, 50, 0.5);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
@@ -1456,12 +1391,11 @@ html, body, #root {
   cursor: not-allowed;
 }
 
-/* Form Input and Select Styling */
 .form-control, .form-select {
   background-color: rgba(40, 40, 40, 0.8) !important;
   border: 1px solid #555 !important;
   color: #ffffff !important;
-  padding: 12px 15px;
+  padding: 14px 15px;
   border-radius: 8px;
   width: 100%;
   font-size: 16px;
@@ -1469,19 +1403,16 @@ html, body, #root {
 }
 
 
-/* Placeholder styling */
 .form-control::placeholder {
   color: #aaaaaa !important;
   opacity: 1;
 }
 
-/* Select dropdown options styling */
 .form-select option {
   background-color: #1a1a1a;
   color: #ffffff;
 }
 
-/* Checkbox styling */
 .form-check-input {
   background-color: rgba(40, 40, 40, 0.8);
   border: 1px solid #555;
@@ -1497,7 +1428,6 @@ html, body, #root {
   margin-left: 8px;
 }
 
-/* Search input specific styling */
 .search-input {
   background-color: rgba(40, 40, 40, 0.8) !important;
   border: 1px solid #555 !important;
@@ -1508,14 +1438,13 @@ html, body, #root {
   font-size: 16px;
 }
 .search-input:hover {
-  background-color: rgba(0, 123, 255, 0.2); /* light blue background on hover */
-  border-color: #007bff; /* blue border on hover */
+  background-color: rgba(0, 123, 255, 0.2);
+  border-color: #007bff;
 }
 .search-input::placeholder {
   color: #aaaaaa !important;
 }
 
-/* Fix for the number of rounds dropdown */
 select.form-select {
   appearance: none;
   -webkit-appearance: none;
@@ -1527,15 +1456,14 @@ select.form-select {
   padding-right: 45px;
 }
 
-/* For the fight details section specifically */
 .fight-details .form-control,
 .fight-details .form-select {
   background-color: rgba(40, 40, 40, 0.9) !important;
 }
 
 .form-select:focus {
-border-color: #1e90ff !important;  /* blue border */
-  box-shadow: 0 0 6px #1e90ff !important; /* blue glow */
+border-color: #1e90ff !important;
+  box-shadow: 0 0 6px #1e90ff !important;
   outline: none !important; }
 
 
@@ -1544,11 +1472,9 @@ border-color: #1e90ff !important;  /* blue border */
   display: flex;
   flex-direction: column;
 
-  /* Background image */
   background: url("images/abc.jfif") no-repeat center center fixed;
   background-size: cover;
 
-  /* Dark overlay for readability */
   position: relative;
 }
 
@@ -1559,13 +1485,13 @@ border-color: #1e90ff !important;  /* blue border */
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(50, 50, 50, 0.5); /* UFC dark overlay */
+  background: rgba(50, 50, 50, 0.5);
   z-index: 0;
-  pointer-events: none; /* lets clicks go through */
+  pointer-events: none;
 }
 .app-content {
   position: relative;
-  z-index: 2;       /* sits above the overlay */
+  z-index: 2;
 }
 
 
@@ -1577,7 +1503,7 @@ border-color: #1e90ff !important;  /* blue border */
   letter-spacing: 0.1em;
 }
 
-/* Hamburger */
+
 .hamburger {
   font-size: 1.8rem;
   background: none;
@@ -1586,11 +1512,11 @@ border-color: #1e90ff !important;  /* blue border */
   cursor: pointer;
 }
 
-/* Sidebar menu */
+
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px; /* hidden */
+  left: -250px;
   width: 250px;
   height: 100%;
   background: rgba(20,20,20,0.95);
@@ -1627,7 +1553,6 @@ border-color: #1e90ff !important;  /* blue border */
   cursor: pointer;
 }
 
-/* Center container */
 .main-container {
   flex-grow: 1;
   display: flex;
@@ -1644,18 +1569,18 @@ border-color: #1e90ff !important;  /* blue border */
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   overflow: hidden;
 }
-/* Limit the main predictor card */
+
 .card.w-100 {
-  max-width: 1000px;   /* narrower */
-  margin: 0 auto;      /* center horizontally */
-  min-height: 650px;   /* taller */
+  max-width: 1000px;
+  margin: 0 auto;
+  min-height: 650px;
 }
 
 .fighter-card {
-  min-height: 320px;       /* gives breathing room */
-  max-width: 420px;        /* stops them from being too wide */
-  margin: 0 auto;          /* centers if smaller than column */
-  padding: 25px;           /* more breathing room */
+  min-height: 320px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 25px;
 }
 
 .search-input {
@@ -1667,16 +1592,11 @@ border-color: #1e90ff !important;  /* blue border */
   color: #fff;
 }
 
-
-/* Add these styles to your existing App.css */
-
-/* Analytics page specific styles */
 .fighter-analytics-container {
   padding: 20px;
   width: 100%;
 }
 
-/* Comparison tool specific styles */
 .fighter-comparison {
   background: #0a0a0a;
   padding: 20px;
@@ -1690,12 +1610,11 @@ border-color: #1e90ff !important;  /* blue border */
   padding: 20px;
 }
 
-/* Card adjustments for both pages */
 .card.w-100 {
   max-width: 1000px;
-  position: absolute;  /* allows x/y positioning */
-  top: 260px;          /* y-axis (down from top) */
-  left: 700px;         /* x-axis (right from left) */
+  position: absolute;
+  top: 260px;
+  left: 700px;
 }
 .card2.w-100 {
   max-width: 1000px;
@@ -1708,11 +1627,9 @@ border-color: #1e90ff !important;  /* blue border */
 
 .card-body {
   padding: 25px;
-  background-color: #fff; /* White background */
+  background-color: #fff;
 }
 
-
-/* Table responsiveness */
 .table-responsive {
   overflow-x: auto;
 }
@@ -1721,15 +1638,15 @@ border-color: #1e90ff !important;  /* blue border */
   position: relative;
 }
 
-/* Override Bootstrap yellow highlight */
+
 .search-container .form-control:focus {
-  border-color: #1e90ff !important;   /* blue border */
-  box-shadow: 0 0 6px #1e90ff !important; /* blue glow */
+  border-color: #1e90ff !important;
+  box-shadow: 0 0 6px #1e90ff !important;
   outline: none !important;
 }
 .form-control:hover {
-  border-color: #1e90ff !important;   /* blue border */
-  box-shadow: 0 0 6px #1e90ff !important; /* blue glow */
+  border-color: #1e90ff !important;
+  box-shadow: 0 0 6px #1e90ff !important;
   outline: none !important;
 }
 
@@ -1741,7 +1658,7 @@ border-color: #1e90ff !important;  /* blue border */
   overflow-y: auto;
 }
 
-/* Main container adjustments */
+
 .main-container {
   flex-grow: 1;
   display: flex;
@@ -1750,14 +1667,14 @@ border-color: #1e90ff !important;  /* blue border */
   padding: 2rem;
   width: 100%;
 }
-/* Sidebar container */
+
 .sidebar {
   position: fixed;
   top: 0;
-  left: -260px; /* hidden */
+  left: -260px;
   width: 260px;
   height: 100%;
-  background: linear-gradient(180deg, #000 0%, #111 100%); /* black to dark grey */
+  background: linear-gradient(180deg, #000 0%, #111 100%);
   padding: 20px;
   transition: left 0.3s ease;
   z-index: 1000;
@@ -1766,10 +1683,9 @@ border-color: #1e90ff !important;  /* blue border */
 }
 
 .sidebar.open {
-  left: 0; /* slide in */
+  left: 0;
 }
 
-/* Sidebar header (close button area) */
 .sidebar-header {
   display: flex;
   justify-content: flex-end;
@@ -1787,10 +1703,9 @@ border-color: #1e90ff !important;  /* blue border */
 }
 
 .close-btn:hover {
-  color: #e10600; /* UFC red */
+  color: #e10600;
 }
 
-/* Sidebar nav */
 .sidebar-nav {
   margin-top: 30px;
   display: flex;
@@ -1798,7 +1713,6 @@ border-color: #1e90ff !important;  /* blue border */
   gap: 15px;
 }
 
-/* Sidebar buttons */
 .sidebar-nav button,
 .sidebar-nav .logout-btn {
   background: #1c1c1c;
@@ -1814,24 +1728,21 @@ border-color: #1e90ff !important;  /* blue border */
   letter-spacing: 0.5px;
 }
 
-/* Hover state */
 .sidebar-nav button:hover,
 .sidebar-nav .logout-btn:hover {
   border-color: #1e90ff !important;
-  box-shadow: 0 0 6px #1e90ff !important; /* UFC red outline */
-  background: #2c2c2c;     /* slightly lighter grey */
+  box-shadow: 0 0 6px #1e90ff !important;
+  background: #2c2c2c;
   transform: translateX(5px);
 }
 
-/* Active tab */
 .sidebar-nav button.active {
-  background: #1e90ff; /* UFC red */
+  background: #1e90ff;
   color: #fff;
  border-color: #1e90ff !important;
   box-shadow: 0 0 6px #1e90ff !important;
 }
 
-/* Logout button styled separately */
 .sidebar-nav .logout-btn {
   margin-top: auto;
   background: #3a3a3a;
@@ -1857,12 +1768,10 @@ border-color: #1e90ff !important;  /* blue border */
   align-items: center;
   justify-content: center;
 
-  /* Background image */
   background: url("images/abvc.jpg")
     no-repeat center center fixed;
   background-size: cover;
 
-  /* Dark overlay for readability */
   position: relative;
 }
 
@@ -1873,7 +1782,7 @@ border-color: #1e90ff !important;  /* blue border */
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 15, 15, 0.85); /* UFC dark overlay */
+  background: rgba(15, 15, 15, 0.85);
   z-index: 0;
 }
 .auth-container::after {
@@ -1881,21 +1790,20 @@ border-color: #1e90ff !important;  /* blue border */
   position: absolute;
   bottom: 20px;
   right: 20px;
-  width: 250px;   /* increase size */
+  width: 250px;
   height: 120px;
   background: url("images/UFC_logo.svg.png") no-repeat center;
   background-size: contain;
 
-  /* make it white */
   filter: brightness(0) invert(1);
 
-  opacity: 1; /* fully visible */
+  opacity: 1;
   z-index: 2;
 }
 
 .auth-card {
   position: relative;
-  z-index: 1; /* keeps card above overlay */
+  z-index: 1;
   background: var(--ufc-card);
   border: 1px solid var(--ufc-border);
   border-radius: 16px;
@@ -1938,7 +1846,6 @@ border-color: #1e90ff !important;  /* blue border */
   margin-top: 10px;
 }
 
-/* Shared button style (from your .btn-predict) */
 .btn-predict {
   background:  rgba(50, 50, 50, 0.5);
   border: 1px solid #444;
@@ -1959,7 +1866,6 @@ border-color: #1e90ff !important;  /* blue border */
   transform: translateY(1px);
 }
 
-/* Input styling */
 .auth-card input {
   width: 100%;
   padding: 12px;
@@ -1978,10 +1884,9 @@ border-color: #1e90ff !important;  /* blue border */
 .btn,
 .btn-primary,
 .btn-danger {
-  @apply btn-predict; /* if using Tailwind */
+  @apply btn-predict;
 }
 
-/* If not using Tailwind, just force styles */
 .btn,
 .btn-primary,
 .btn-danger {
@@ -1997,15 +1902,15 @@ border-color: #1e90ff !important;  /* blue border */
 .stat-card {
   display: flex;
   flex-direction: column;
-  align-items: center;   /* centers horizontally */
-  justify-content: center; /* centers vertically */
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 10px;
 }
 .stat-value {
   font-size: 1.2rem;
   font-weight: bold;
-  min-height: 28px;  /* adjust until all numbers align */
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2019,7 +1924,7 @@ border-color: #1e90ff !important;  /* blue border */
   align-items: center;
   padding: 1rem;
   color: black;
-  background: black; /* light overlay behind text */
+  background: black;
 }
 
 .hamburger {
@@ -2027,7 +1932,7 @@ border-color: #1e90ff !important;  /* blue border */
   border: none;
   font-size: 2rem;
   cursor: pointer;
-  color: white; /* make it visible on dark overlay */
+  color: white;
 }
 
 .app-title {
@@ -2035,10 +1940,10 @@ border-color: #1e90ff !important;  /* blue border */
   color: white;
 }
 .red-fill2 {
-  color: #e74c3c; /* Red fighter’s numbers */
+  color: #e74c3c;
 
 }
 
 .blue-fill2 {
-  color: #3498db; /* Blue fighter’s numbers */
+  color: #3498db;
 }
