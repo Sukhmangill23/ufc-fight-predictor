@@ -1,6 +1,9 @@
-# UFC Fight Predictor
+<img width="1913" height="917" alt="image" src="https://github.com/user-attachments/assets/6681ae66-038d-4cfa-a132-ccdae01cb479" /># UFC Fight Predictor
 
 A machine learning-powered web application that predicts UFC fight outcomes and provides detailed fighter analytics.
+
+<img width="1913" height="917" alt="image" src="https://github.com/user-attachments/assets/3be647a0-45d0-41f6-b385-9f143ae9b3d4" />
+
 
 ---
 
