@@ -193,13 +193,6 @@ The prediction model uses **gradient boosting** trained on historical UFC data. 
 
 **Accuracy:** ~75-80% on historical data
 
----
 
-
-## License
-
-This project is for **educational and demonstration purposes**. UFC and related trademarks are property of their respective owners.
-
----
 
 
