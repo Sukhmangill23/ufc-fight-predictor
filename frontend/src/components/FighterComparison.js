@@ -172,10 +172,10 @@ const FighterComparison = () => {
                   ></div>
                 </div>
 
-                <div className="advantage-numbers">
-                  <span>{stats1[adv.key] || 0}</span>
-                  <span>{stats2[adv.key] || 0}</span>
-                </div>
+<div className="advantage-numbers">
+  <span className="me-3">{stats1[adv.key] || 0}</span>
+  <span>{stats2[adv.key] || 0}</span>
+</div>
               </div>
           );
         })}
@@ -196,8 +196,7 @@ const FighterComparison = () => {
         <div className="row flex-grow-1 mb-3">
           {/* Fighter 1 Card */}
           <div className="col-md-5 d-flex flex-column">
-            <div className="fighter-card red-corner p-3 mb-3 bg-dark
-">
+            <div className="fighter-card red-corner p-3 mb-3 bg-dark w-75">
               <h3 className="corner-title">Red Corner</h3>
               <div className="search-container">
                 <input
@@ -207,6 +206,7 @@ const FighterComparison = () => {
                   onChange={(e) => handleSearch1(e.target.value)}
                   placeholder="Search fighter..."
                 />
+
                 {showResults1 && searchResults1.length > 0 && (
                   <div className="search-results">
                     {searchResults1.map((fighter, index) => (
@@ -252,7 +252,7 @@ const FighterComparison = () => {
 
           {/* Fighter 2 Card */}
           <div className="col-md-5 d-flex flex-column">
-            <div className="fighter-card blue-corner p-3 mb-3 bg-dark
+            <div className="fighter-card blue-corner p-3 mb-3 bg-dark w-75
 ">
               <h3 className="corner-title">Blue Corner</h3>
               <div className="search-container">
@@ -324,18 +324,19 @@ const FighterComparison = () => {
 
         {/* Results Section */}
         {stats1 && stats2 && (
-          <div className="result-container mt-3  p-3 mb-3 bg-dark">
-            <h3 className="text-center mb-3">Detailed Comparison Analysis</h3>
+     <div className="result-container mt-3 p-3 mb-3 bg-dark">
+    <h3 className="text-center mb-4 pb-2 border-bottom border-white">Detailed Comparison Analysis</h3>
 
-            {/* Visual Comparison */}
-            <div className="mb-4">
-              <h4 className="section-title mb-3">Visual Analysis</h4>
-              <div className="row">
-                <div className="col-md-12">
-                  <h5 className="sub-section-title text-center mb-3">Key Skills Comparison</h5>
-                  {renderBarChart()}
-                </div>
-              </div>
+    {/* Visual Comparison */}
+    <div className="mb-4 text-center">
+        <div className="row">
+            <div className="col-md-12">
+                <h5 className="sub-section-title text-center mb-3">Key Skills Comparison</h5>
+                {renderBarChart()}
+            </div>
+        </div>
+
+
 
               {/* Advantage Indicators */}
               {renderAdvantageCards()}
