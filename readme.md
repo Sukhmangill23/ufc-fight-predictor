@@ -132,6 +132,8 @@ npm start                       # Start the development server
 ---
 
 ## Project Structure
+
+```
 ufc-fight-predictor/
 ├── backend/
 │ ├── app/
@@ -151,6 +153,7 @@ ufc-fight-predictor/
 ├── services/ # API service functions
 └── context/ # React context providers
 
+```
 
 ---
 
