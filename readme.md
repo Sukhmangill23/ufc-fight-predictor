@@ -171,24 +171,11 @@ The prediction model uses **gradient boosting** trained on historical UFC data. 
 
 ---
 
-## Future Enhancements
-
-- Real-time UFC API integration
-- Additional visualization options
-- Social features for sharing predictions
-- Mobile application version
-- Advanced statistical models incorporating more fight metrics
-
----
 
 ## License
 
 This project is for **educational and demonstration purposes**. UFC and related trademarks are property of their respective owners.
 
 ---
-
-## Support
-
-For technical support or questions, contact the development team.
 
 
