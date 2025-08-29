@@ -91,106 +91,101 @@ cd frontend
 npm install
 npm start                       # Start the development server
 ```
-Usage
+## Usage
 
-Open your browser at http://localhost:3000.
+1. Open your browser at [http://localhost:3000](http://localhost:3000)
+2. Create an account or log in
 
-Create an account or log in.
+### Predict Fights
+- Select two fighters from the searchable database
+- Configure fight details (number of rounds, title bout status)
+- View prediction results and confidence percentages
 
-Predict Fights:
+### Compare Fighters
+- Analyze strengths and weaknesses between fighters using the comparison tool
 
-Select two fighters
+### Explore Analytics
+- Dive deep into individual fighter statistics and historical performance
 
-Configure fight details (rounds, title bout)
+---
 
-View predictions and confidence percentages
+## API Endpoints
 
-Compare Fighters: Analyze strengths and weaknesses.
+### Authentication
+- `POST /register` - Create a new user account
+- `POST /login` - Authenticate and receive JWT token
 
-Explore Analytics: Dive deep into fighter statistics and history.
+### Fighter Data
+- `GET /search_fighters` - Search for fighters by name
+- `POST /get_fighter_stats` - Retrieve detailed fighter statistics
+- `POST /fighter_analytics_details` - Get comprehensive fighter analytics
 
-API Endpoints
-Authentication
+### Predictions
+- `POST /predict` - Generate fight prediction between two fighters
+- `POST /prediction_insights` - Get detailed explanation of prediction factors
+- `GET /prediction_history` - Retrieve user's prediction history
 
-POST /register - Create a new user account
+### Analytics
+- `GET /fighter_analytics` - Get general fighter statistics and metrics
+- `GET /top_performers` - Retrieve top performing fighters data
 
-POST /login - Authenticate and receive JWT token
+---
 
-Fighter Data
-
-GET /search_fighters - Search for fighters by name
-
-POST /get_fighter_stats - Retrieve detailed fighter statistics
-
-POST /fighter_analytics_details - Get comprehensive fighter analytics
-
-Predictions
-
-POST /predict - Generate fight prediction between two fighters
-
-POST /prediction_insights - Get detailed explanation of prediction factors
-
-GET /prediction_history - Retrieve user's prediction history
-
-Analytics
-
-GET /fighter_analytics - Get general fighter statistics and metrics
-
-GET /top_performers - Retrieve top performing fighters data
-
-Project Structure
+## Project Structure
 ufc-fight-predictor/
 ├── backend/
-│   ├── app/
-│   │   ├── routes.py              # Main API routes
-│   │   ├── services/              # Business logic services
-│   │   └── __init__.py            # Flask app initialization
-│   ├── database/
-│   │   └── init_db.py             # Database initialization
-│   ├── ml/
-│   │   ├── model_pipeline.py      # ML model training pipeline
-│   │   └── utils.py               # Data processing utilities
-│   └── models/                    # Trained ML models
+│ ├── app/
+│ │ ├── routes.py # Main API routes
+│ │ ├── services/ # Business logic services
+│ │ └── init.py # Flask app initialization
+│ ├── database/
+│ │ └── init_db.py # Database initialization
+│ ├── ml/
+│ │ ├── model_pipeline.py # ML model training pipeline
+│ │ └── utils.py # Data processing utilities
+│ └── models/ # Trained ML models
 └── frontend/
-    └── src/
-        ├── components/            # React components
-        ├── pages/                 # Page components
-        ├── services/              # API service functions
-        └── context/               # React context providers
+└── src/
+├── components/ # React components
+├── pages/ # Page components
+├── services/ # API service functions
+└── context/ # React context providers
 
 
-Model Details
+---
 
-The prediction model uses gradient boosting trained on historical UFC data. Key features:
+## Model Details
 
-Striking statistics: significant strikes per minute
+The prediction model uses **gradient boosting** trained on historical UFC data. Key features:
 
-Grappling metrics: takedown accuracy, submission attempts
+- **Striking statistics:** significant strikes per minute
+- **Grappling metrics:** takedown accuracy, submission attempts
+- **Physical attributes:** height, reach, age
+- **Experience factors:** total fights, win streaks
+- **Contextual factors:** number of rounds, title fight status
 
-Physical attributes: height, reach, age
+**Accuracy:** ~75-80% on historical data
 
-Experience factors: total fights, win streaks
+---
 
-Contextual factors: number of rounds, title fight status
+## Future Enhancements
 
-Accuracy: ~75-80% on historical data.
+- Real-time UFC API integration
+- Additional visualization options
+- Social features for sharing predictions
+- Mobile application version
+- Advanced statistical models incorporating more fight metrics
 
-Future Enhancements
+---
 
-Real-time UFC API integration
+## License
 
-Additional visualization options
+This project is for **educational and demonstration purposes**. UFC and related trademarks are property of their respective owners.
 
-Social features for sharing predictions
+---
 
-Mobile application version
-
-Advanced statistical models incorporating more fight metrics
-
-License
-
-This project is for educational and demonstration purposes. UFC and related trademarks are property of their respective owners.
-
-Support
+## Support
 
 For technical support or questions, contact the development team.
+
+
