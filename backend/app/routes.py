@@ -5,50 +5,163 @@ import numpy as np
 import os
 import sqlite3
 import traceback
-from sklearn.metrics import confusion_matrix, accuracy_score
 from ml.utils import get_fighter_stats, fill_missing_stats
-import random
-
-from collections import defaultdict
-
-from .services.auth_service import register_user, authenticate_user
+from .services.fighter_service import get_top_performers
+from threading import Thread
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 main = Blueprint('main', __name__)
 
-
 WEIGHT_CLASSES = {
-    'Strawweight': 0,
-    'Flyweight': 1,
-    'Bantamweight': 2,
-    'Featherweight': 3,
-    'Lightweight': 4,
-    'Welterweight': 5,
-    'Middleweight': 6,
-    'Light Heavyweight': 7,
-    'Heavyweight': 8,
-    'Catch Weight': 4,
-    'Openweight': 4
+    'Strawweight': 0, 'Flyweight': 1, 'Bantamweight': 2, 'Featherweight': 3,
+    'Lightweight': 4, 'Welterweight': 5, 'Middleweight': 6,
+    'Light Heavyweight': 7, 'Heavyweight': 8,
+    'Catch Weight': 4, 'Openweight': 4
 }
 
 FEATURES = [
-    'RedOdds', 'BlueOdds', 'OddsRatio', 'WinStreakDif',
-    'HeightAdvRed', 'ReachAdvRed', 'SizeAdvRed', 'StanceMatch',
-    'RedAge', 'BlueAge', 'NumberOfRounds', 'TitleBout',
-    'WeightClassAdvRed', 'ExpAdvRed', 'GrappleAdvRed'
+    'RedOdds', 'BlueOdds', 'OddsRatio',
+    'SigStrLandedDif', 'SigStrPctDif', 'SigStrAbsorbedDif',
+    'TDLandedDif', 'TDPctDif', 'SubAttDif',
+    'RedFinishRate', 'BlueFinishRate', 'FinishRateDif',
+    'TotalRoundDif', 'TotalTitleBoutDif', 'WinDif', 'LossDif',
+    'WinStreakDif', 'LoseStreakDif', 'LongestWinStreakDif',
+    'HeightDif', 'ReachDif', 'AgeDif', 'RedAge', 'BlueAge',
+    'StanceMatch', 'NumberOfRounds', 'TitleBout', 'WeightClassNum',
+    'RankDif', 'RedRanked', 'BlueRanked',
+    'KODif', 'SubDif',
+    'RedRecency_SigStr', 'BlueRecency_SigStr', 'RecencySigStrDif',
+    'RedRecency_TD', 'BlueRecency_TD', 'RecencyTDDif',
+    'RedRecency_FinishRate', 'BlueRecency_FinishRate', 'RecencyFinishDif',
 ]
 
 MAX_DIVISION_GAP = 2
 
 model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'ufc_predictor_v4.pkl')
-model = joblib.load(model_path)
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
-
+model      = joblib.load(model_path)
+DB_PATH    = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
 
 
+def get_conn():
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    return conn
 
-# Add new routes
+
+def _bg_scrape(names):
+    """Background thread: scrape stale fighters one at a time, each with its own connection."""
+    from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter
+    for name in names:
+        try:
+            fresh = scrape_fighter_by_name(name)
+            if fresh:
+                conn   = get_conn()
+                cursor = conn.cursor()
+                try:
+                    upsert_fighter(cursor, fresh)
+                    conn.commit()
+                finally:
+                    conn.close()
+        except Exception as e:
+            print(f"[BG Scrape] Failed for {name}: {e}")
+
+def compute_model_features(red_stats, blue_stats, data):
+    red_wc  = red_stats.get('weight_class', 'Lightweight')
+    blue_wc = blue_stats.get('weight_class', 'Lightweight')
+
+    red_wins  = max(red_stats.get('total_fights', 0) * 0.7, 1)
+    blue_wins = max(blue_stats.get('total_fights', 0) * 0.7, 1)
+
+    red_ko    = red_stats.get('ko_wins', 0) or 0
+    blue_ko   = blue_stats.get('ko_wins', 0) or 0
+    red_sub   = round(red_stats.get('avg_sub_att', 0) or 0)
+    blue_sub  = round(blue_stats.get('avg_sub_att', 0) or 0)
+
+    red_finish_rate  = (red_ko + red_sub)  / red_wins
+    blue_finish_rate = (blue_ko + blue_sub) / blue_wins
+
+    red_sig  = red_stats.get('avg_sig_str', 0) or 0
+    blue_sig = blue_stats.get('avg_sig_str', 0) or 0
+    red_td   = red_stats.get('avg_td_pct', 0) or 0
+    blue_td  = blue_stats.get('avg_td_pct', 0) or 0
+    red_exp  = red_stats.get('total_fights', 0) or 0
+    blue_exp = blue_stats.get('total_fights', 0) or 0
+
+    red_odds  = float(data.get('red_odds',  -150))
+    blue_odds = float(data.get('blue_odds',  130))
+
+    features = {
+        # Odds
+        'RedOdds':   red_odds,
+        'BlueOdds':  blue_odds,
+        'OddsRatio': red_odds / blue_odds if blue_odds != 0 else 1,
+
+        # Striking
+        'SigStrLandedDif':   red_sig  - blue_sig,
+        'SigStrPctDif':      red_sig  - blue_sig,
+        'SigStrAbsorbedDif': blue_sig - red_sig,
+
+        # Grappling
+        'TDLandedDif': red_td  - blue_td,
+        'TDPctDif':    red_td  - blue_td,
+        'SubAttDif':   (red_stats.get('avg_sub_att', 0) or 0) - (blue_stats.get('avg_sub_att', 0) or 0),
+
+        # Finish rate
+        'RedFinishRate':  red_finish_rate,
+        'BlueFinishRate': blue_finish_rate,
+        'FinishRateDif':  red_finish_rate - blue_finish_rate,
+
+        # Experience
+        'TotalRoundDif':     red_exp  - blue_exp,
+        'TotalTitleBoutDif': 0,
+        'WinDif':            red_exp  - blue_exp,
+        'LossDif':           0,
+
+        # Streaks
+        'WinStreakDif':        (red_stats.get('win_streak', 0) or 0) - (blue_stats.get('win_streak', 0) or 0),
+        'LoseStreakDif':       0,
+        'LongestWinStreakDif': (red_stats.get('win_streak', 0) or 0) - (blue_stats.get('win_streak', 0) or 0),
+
+        # Physical
+        'HeightDif': (red_stats.get('height', 180) or 180) - (blue_stats.get('height', 180) or 180),
+        'ReachDif':  (red_stats.get('reach', 180) or 180)  - (blue_stats.get('reach', 180) or 180),
+        'AgeDif':    (red_stats.get('age', 30) or 30)      - (blue_stats.get('age', 30) or 30),
+        'RedAge':    red_stats.get('age', 30) or 30,
+        'BlueAge':   blue_stats.get('age', 30) or 30,
+
+        # Stance
+        'StanceMatch': 1 if red_stats.get('stance', 'Orthodox') == blue_stats.get('stance', 'Orthodox') else 0,
+
+        # Fight context
+        'NumberOfRounds': int(data.get('number_of_rounds', 3)),
+        'TitleBout':      1 if data.get('title_bout') == 'true' else 0,
+        'WeightClassNum': WEIGHT_CLASSES.get(red_wc, 4),
+
+        # Rankings — default unranked
+        'RankDif':    0,
+        'RedRanked':  0,
+        'BlueRanked': 0,
+
+        # KO/Sub
+        'KODif':  red_ko  - blue_ko,
+        'SubDif': red_sub - blue_sub,
+
+        # Recency — use career stats as proxy at prediction time
+        'RedRecency_SigStr':     red_sig,
+        'BlueRecency_SigStr':    blue_sig,
+        'RecencySigStrDif':      red_sig - blue_sig,
+        'RedRecency_TD':         red_td,
+        'BlueRecency_TD':        blue_td,
+        'RecencyTDDif':          red_td - blue_td,
+        'RedRecency_FinishRate':  red_finish_rate,
+        'BlueRecency_FinishRate': blue_finish_rate,
+        'RecencyFinishDif':       red_finish_rate - blue_finish_rate,
+    }
+
+    return features
+
+
+# ── auth ──────────────────────────────────────────────────────────────────────
 
 @main.route('/register', methods=['POST', 'OPTIONS'])
 def register():
@@ -59,6 +172,7 @@ def register():
         return jsonify({'error': 'Missing username or password'}), 400
     return register_user(data['username'], data['password'])
 
+
 @main.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -66,41 +180,8 @@ def login():
         return jsonify({'error': 'Missing username or password'}), 400
     return authenticate_user(data['username'], data['password'])
 
-# HELPER FUNCTIONS
 
-def compute_model_features(red_stats, blue_stats, data):
-    """Compute model features from fighter stats and form data"""
-    red_wc = red_stats.get('weight_class', 'Lightweight')
-    blue_wc = blue_stats.get('weight_class', 'Lightweight')
-
-    features = {
-        'RedOdds': red_stats.get('avg_sig_str', 0) * -1,
-        'BlueOdds': blue_stats.get('avg_sig_str', 0),
-        'WinStreakDif': red_stats.get('win_streak', 0) - blue_stats.get('win_streak', 0),
-        'RedAge': red_stats.get('age', 30),
-        'BlueAge': blue_stats.get('age', 30),
-        'NumberOfRounds': int(data.get('number_of_rounds', 3)),
-        'TitleBout': 1 if data.get('title_bout') == 'true' else 0,
-        'HeightAdvRed': red_stats.get('height', 180) - blue_stats.get('height', 180),
-        'ReachAdvRed': red_stats.get('reach', 180) - blue_stats.get('reach', 180),
-        'StanceMatch': 1 if red_stats.get('stance', 'Orthodox') == blue_stats.get('stance', 'Orthodox') else 0,
-        'WeightClassAdvRed': WEIGHT_CLASSES.get(red_wc, 4) - WEIGHT_CLASSES.get(blue_wc, 4),
-        'ExpAdvRed': red_stats.get('total_fights', 0) - blue_stats.get('total_fights', 0),
-        'GrappleAdvRed': (red_stats.get('avg_sub_att', 0) - blue_stats.get('avg_sub_att', 0)) +
-                         (red_stats.get('avg_td_pct', 0) - blue_stats.get('avg_td_pct', 0))
-    }
-
-    features['OddsRatio'] = features['RedOdds'] / features['BlueOdds'] if features['BlueOdds'] != 0 else 1
-    features['SizeAdvRed'] = (features['HeightAdvRed'] + features['ReachAdvRed']) / 2
-
-    return features
-
-
-def get_conn():
-    """Get database connection"""
-    return sqlite3.connect(DB_PATH)
-
-# ROUTES
+# ── routes ────────────────────────────────────────────────────────────────────
 
 @main.route('/')
 def home():
@@ -110,96 +191,171 @@ def home():
 @main.route('/search_fighters', methods=['GET'])
 def search_fighters():
     term = request.args.get('term', '')
-    conn = get_conn()
+    if len(term) < 3:
+        return jsonify([])
+
+    conn   = get_conn()
     cursor = conn.cursor()
-
-    cursor.execute("SELECT name FROM fighters WHERE name LIKE ? LIMIT 10", (f'%{term}%',))
-    fighters = [row[0] for row in cursor.fetchall()]
-
+    cursor.execute(
+        "SELECT DISTINCT name, last_scraped FROM fighters WHERE name LIKE ? LIMIT 10",
+        (f'%{term}%',)
+    )
+    rows = cursor.fetchall()
     conn.close()
+
+    fighters = [row[0] for row in rows]
+
+    if not fighters:
+        try:
+            from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter
+            fresh = scrape_fighter_by_name(term)
+            if fresh:
+                c   = get_conn()
+                cur = c.cursor()
+                try:
+                    upsert_fighter(cur, fresh)
+                    c.commit()
+                    fighters = [fresh['name']]
+                finally:
+                    c.close()
+        except Exception as e:
+            print(f"[Search] Scrape error: {e}")
+
+    stale = [row[0] for row in rows if not row[1]]
+    if stale:
+        Thread(target=_bg_scrape, args=(stale,), daemon=True).start()
+
     return jsonify(fighters)
+
+
+@main.route('/refresh_fighters', methods=['POST'])
+def refresh_fighters():
+    try:
+        from .services.fighter_scraper import run_fighter_scraper
+        body    = request.get_json(silent=True) or {}
+        letters = body.get('letters', None)
+        detail  = body.get('detail', True)
+        total   = run_fighter_scraper(letters=letters, detail=detail)
+        return jsonify({'status': 'ok', 'fighters_updated': total})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 
 @main.route('/get_fighter_stats', methods=['POST'])
 def get_fighter_stats_route():
     fighter_name = request.form.get('fighter')
-    stats = get_fighter_stats(fighter_name)
 
+    conn   = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT last_scraped FROM fighters WHERE name LIKE ? LIMIT 1",
+        (f'%{fighter_name}%',)
+    )
+    row = cursor.fetchone()
+    conn.close()
+
+    never_scraped = not row or not row[0]
+
+    if never_scraped:
+        try:
+            from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter, upsert_fighter_fights
+            print(f"[Route] Force-scraping: {fighter_name}")
+            fresh = scrape_fighter_by_name(fighter_name)
+            if fresh:
+                c   = get_conn()
+                cur = c.cursor()
+                try:
+                    upsert_fighter(cur, fresh)
+                    detail_url = fresh.get('detail_url')
+                    if detail_url:
+                        cur.execute(
+                            "DELETE FROM fights WHERE RedFighter=? OR BlueFighter=?",
+                            (fresh['name'], fresh['name'])
+                        )
+                        upsert_fighter_fights(cur, fresh['name'], detail_url)
+                    c.commit()
+                    print(f"[Route] Force-scraped: {fresh.get('name')}")
+                finally:
+                    c.close()
+        except Exception as e:
+            print(f"[Route] Force-scrape failed: {e}")
+
+    stats = get_fighter_stats(fighter_name)
     if not stats:
         return jsonify({'error': 'Fighter not found'})
 
-    normalized_stats = {
-        'name': stats.get('name', fighter_name),
-        'height': stats.get('height', stats.get('height_cms', 0)),
-        'reach': stats.get('reach', stats.get('reach_cms', 0)),
-        'age': stats.get('age', 30),
-        'stance': stats.get('stance', 'Orthodox'),
-        'win_streak': stats.get('win_streak', stats.get('current_win_streak', 0)),
-        'ko_wins': stats.get('ko_wins', stats.get('wins_by_ko', 0)),
+    return jsonify({
+        'name':         stats.get('name', fighter_name),
+        'height':       stats.get('height', 0),
+        'reach':        stats.get('reach', 0),
+        'age':          stats.get('age', 30),
+        'stance':       stats.get('stance', 'Orthodox'),
+        'win_streak':   stats.get('win_streak', 0),
+        'ko_wins':      stats.get('ko_wins', 0),
         'weight_class': stats.get('weight_class', 'Lightweight'),
-        'avg_sig_str': stats.get('avg_sig_str', 0),
-        'avg_td_pct': stats.get('avg_td_pct', 0),
-        'avg_sub_att': stats.get('avg_sub_att', 0),
+        'avg_sig_str':  stats.get('avg_sig_str', 0),
+        'avg_td_pct':   stats.get('avg_td_pct', 0),
+        'avg_sub_att':  stats.get('avg_sub_att', 0),
         'total_fights': stats.get('total_fights', 0)
-    }
-
-    return jsonify(normalized_stats)
+    })
 
 
 @main.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = request.form
-        red_stats_raw = get_fighter_stats(data['red_fighter'])
+        data           = request.form
+        red_stats_raw  = get_fighter_stats(data['red_fighter'])
         blue_stats_raw = get_fighter_stats(data['blue_fighter'])
 
         if not red_stats_raw or not blue_stats_raw:
             return jsonify({'error': 'Fighter not found in database'}), 400
 
-        red_stats = fill_missing_stats(red_stats_raw)
+        red_stats  = fill_missing_stats(red_stats_raw)
         blue_stats = fill_missing_stats(blue_stats_raw)
 
         if data['red_fighter'].strip().lower() == data['blue_fighter'].strip().lower():
             return jsonify({'error': 'Please select two different fighters'}), 400
 
-        red_wc = red_stats.get('weight_class', 'Lightweight')
+        red_wc  = red_stats.get('weight_class', 'Lightweight')
         blue_wc = blue_stats.get('weight_class', 'Lightweight')
-        wc_gap = abs(WEIGHT_CLASSES.get(red_wc, 4) - WEIGHT_CLASSES.get(blue_wc, 4))
+        wc_gap  = abs(WEIGHT_CLASSES.get(red_wc, 4) - WEIGHT_CLASSES.get(blue_wc, 4))
 
         if wc_gap > MAX_DIVISION_GAP:
-            msg = (
-                f"Unrealistic match‑up: {red_wc} vs {blue_wc}. "
-                f"The simulator currently supports opponents within {MAX_DIVISION_GAP} divisions of each other.")
-            return jsonify({'error': msg}), 400
+            return jsonify({'error': (
+                f"Unrealistic matchup: {red_wc} vs {blue_wc}. "
+                f"Supports opponents within {MAX_DIVISION_GAP} divisions of each other."
+            )}), 400
 
-        features = compute_model_features(red_stats, blue_stats, data)
-        input_data = pd.DataFrame([features])
-        model_input = input_data[FEATURES]
-
-        prediction = model.predict(model_input)[0]
+        features         = compute_model_features(red_stats, blue_stats, data)
+        model_input      = pd.DataFrame([features])[FEATURES]
+        prediction       = model.predict(model_input)[0]
         prediction_proba = model.predict_proba(model_input)[0]
 
-        winner = data['red_fighter'] if prediction == 1 else data['blue_fighter']
+        winner     = data['red_fighter'] if prediction == 1 else data['blue_fighter']
         confidence = prediction_proba[1] if prediction == 1 else prediction_proba[0]
 
         try:
-            conn = get_conn()
+            conn   = get_conn()
             cursor = conn.cursor()
-            cursor.execute("""
-                           INSERT INTO predictions
-                               (red_fighter, blue_fighter, predicted_winner)
-                           VALUES (?, ?, ?)
-                           """, (data['red_fighter'], data['blue_fighter'], winner))
+            # Safe migration: add confidence column if missing
+            cols = [r[1] for r in cursor.execute("PRAGMA table_info(predictions)").fetchall()]
+            if 'confidence' not in cols:
+                cursor.execute("ALTER TABLE predictions ADD COLUMN confidence REAL")
+            cursor.execute(
+                "INSERT INTO predictions (red_fighter, blue_fighter, predicted_winner, confidence) VALUES (?,?,?,?)",
+                (data['red_fighter'], data['blue_fighter'], winner, round(float(confidence), 4))
+            )
             conn.commit()
             conn.close()
         except Exception as e:
-            print(f"Failed to save prediction: {str(e)}")
+            print(f"Failed to save prediction: {e}")
 
         return jsonify({
             'prediction': winner,
             'confidence': f"{confidence * 100:.1f}%",
-            'red_prob': f"{prediction_proba[1] * 100:.1f}%",
-            'blue_prob': f"{prediction_proba[0] * 100:.1f}%"
+            'red_prob':   f"{prediction_proba[1] * 100:.1f}%",
+            'blue_prob':  f"{prediction_proba[0] * 100:.1f}%"
         })
 
     except Exception as e:
@@ -207,46 +363,42 @@ def predict():
         return jsonify({'error': str(e)}), 400
 
 
-
 @main.route('/prediction_insights', methods=['POST'])
 def prediction_insights():
     try:
-        data = request.form
-        red_stats = get_fighter_stats(data['red_fighter'])
+        data       = request.form
+        red_stats  = get_fighter_stats(data['red_fighter'])
         blue_stats = get_fighter_stats(data['blue_fighter'])
 
         if not red_stats or not blue_stats:
             return jsonify({'error': 'Fighter not found'}), 400
 
-        importance_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'feature_importance.pkl')
+        importance_path    = os.path.join(os.path.dirname(__file__), '..', 'models', 'feature_importance.pkl')
         feature_importance = joblib.load(importance_path)
 
         attributes = {
-            'Height': ('height', 'HeightAdvRed'),
-            'Reach': ('reach', 'ReachAdvRed'),
-            'Age': ('age', 'RedAge'),
-            'Win Streak': ('win_streak', 'WinStreakDif'),
-            'Striking': ('avg_sig_str', 'RedOdds'),
-            'Takedown': ('avg_td_pct', 'GrappleAdvRed'),
+            'Height':     ('height',       'HeightAdvRed'),
+            'Reach':      ('reach',        'ReachAdvRed'),
+            'Age':        ('age',          'RedAge'),
+            'Win Streak': ('win_streak',   'WinStreakDif'),
+            'Striking':   ('avg_sig_str',  'RedOdds'),
+            'Takedown':   ('avg_td_pct',   'GrappleAdvRed'),
             'Experience': ('total_fights', 'ExpAdvRed')
         }
 
         insights = []
         for name, (attr, feature_key) in attributes.items():
-            red_val = red_stats.get(attr, 0)
+            red_val  = red_stats.get(attr, 0)
             blue_val = blue_stats.get(attr, 0)
-            diff = red_val - blue_val
-
             insights.append({
-                'attribute': name,
-                'red_value': red_val,
+                'attribute':  name,
+                'red_value':  red_val,
                 'blue_value': blue_val,
-                'difference': diff,
-                'influence': feature_importance.get(feature_key, 0)
+                'difference': red_val - blue_val,
+                'influence':  feature_importance.get(feature_key, 0)
             })
 
         insights.sort(key=lambda x: abs(x['influence']), reverse=True)
-
         return jsonify({'insights': insights[:5]})
 
     except Exception as e:
@@ -256,341 +408,321 @@ def prediction_insights():
 @main.route('/fighter_analytics', methods=['GET'])
 def fighter_analytics():
     try:
-        conn = get_conn()
+        conn   = get_conn()
         cursor = conn.cursor()
-
         cursor.execute("""
-                       SELECT ROUND(AVG(height), 1)       AS avg_height,
-                              ROUND(AVG(reach), 1)        AS avg_reach,
-                              ROUND(AVG(age), 1)          AS avg_age,
-                              ROUND(AVG(total_fights), 1) AS avg_fights
-                       FROM fighters
-                       """)
+            SELECT ROUND(AVG(height),1), ROUND(AVG(reach),1),
+                   ROUND(AVG(age),1),   ROUND(AVG(total_fights),1)
+            FROM fighters
+        """)
         result = cursor.fetchone()
-
         cursor.execute("""
-                       SELECT weight_class, COUNT(*) as count
-                       FROM fighters
-                       WHERE weight_class IS NOT NULL
-                       GROUP BY weight_class
-                       ORDER BY count DESC
-                       """)
-        weight_class_rows = cursor.fetchall()
-        weight_class_distribution = {row[0]: row[1] for row in weight_class_rows}
-
+            SELECT weight_class, COUNT(*) as count FROM fighters
+            WHERE weight_class IS NOT NULL
+            GROUP BY weight_class ORDER BY count DESC
+        """)
+        wcd = {row[0]: row[1] for row in cursor.fetchall()}
         conn.close()
-
         return jsonify({
-            'avg_height': result[0] if result[0] is not None else 180.0,
-            'avg_reach': result[1] if result[1] is not None else 180.0,
-            'avg_age': result[2] if result[2] is not None else 30.0,
-            'avg_fights': result[3] if result[3] is not None else 10.0,
-            'weight_class_distribution': weight_class_distribution
+            'avg_height': result[0] or 180.0,
+            'avg_reach':  result[1] or 180.0,
+            'avg_age':    result[2] or 30.0,
+            'avg_fights': result[3] or 10.0,
+            'weight_class_distribution': wcd
         })
-
     except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({
-            'avg_height': 180.0,
-            'avg_reach': 180.0,
-            'avg_age': 30.0,
-            'avg_fights': 10.0,
-            'weight_class_distribution': {}
-        })
+        conn.close()
+        return jsonify({'avg_height': 180.0, 'avg_reach': 180.0,
+                        'avg_age': 30.0, 'avg_fights': 10.0,
+                        'weight_class_distribution': {}}), 500
 
 
 @main.route('/prediction_history', methods=['GET'])
 def prediction_history():
     try:
-        conn = get_conn()
-
+        conn   = get_conn()
         cursor = conn.cursor()
+
         cursor.execute("""
-                       SELECT COUNT(*)                                         as total_predictions,
-                              AVG(CASE WHEN correct = 1 THEN 1.0 ELSE 0.0 END) as accuracy
-                       FROM predictions
-                       WHERE actual_winner IS NOT NULL
-                       """)
+            SELECT COUNT(*), AVG(CASE WHEN correct=1 THEN 1.0 ELSE 0.0 END)
+            FROM predictions WHERE actual_winner IS NOT NULL
+        """)
         metrics = cursor.fetchone()
 
         cursor.execute("""
-                       SELECT AVG(CASE WHEN correct = 1 THEN 1.0 ELSE 0.0 END)
-                       FROM (SELECT correct
-                             FROM predictions
-                             WHERE actual_winner IS NOT NULL
-                             ORDER BY timestamp DESC
-                                 LIMIT 30)
-                       """)
+            SELECT AVG(CASE WHEN correct=1 THEN 1.0 ELSE 0.0 END)
+            FROM (SELECT correct FROM predictions
+                  WHERE actual_winner IS NOT NULL
+                  ORDER BY timestamp DESC LIMIT 30)
+        """)
         recent_accuracy = cursor.fetchone()[0]
 
         cursor.execute("""
-                       SELECT red_fighter,
-                              blue_fighter,
-                              predicted_winner,
-                              actual_winner,
-                              correct,
-                              confidence
-                       FROM predictions
-                       WHERE actual_winner IS NOT NULL
-                       ORDER BY timestamp DESC
-                           LIMIT 10
-                       """)
-        recent_predictions = []
-        columns = [col[0] for col in cursor.description]
-        for row in cursor.fetchall():
-            recent_predictions.append(dict(zip(columns, row)))
+            SELECT red_fighter, blue_fighter, predicted_winner,
+                   actual_winner, correct, confidence
+            FROM predictions WHERE actual_winner IS NOT NULL
+            ORDER BY timestamp DESC LIMIT 10
+        """)
+        cols               = [c[0] for c in cursor.description]
+        recent_predictions = [dict(zip(cols, row)) for row in cursor.fetchall()]
 
-        accuracy_history = [random.uniform(70, 90) for _ in range(12)]
+        cursor.execute("""
+            SELECT strftime('%Y-%m', timestamp),
+                   AVG(CASE WHEN correct=1 THEN 1.0 ELSE 0.0 END)*100
+            FROM predictions WHERE actual_winner IS NOT NULL
+            GROUP BY strftime('%Y-%m', timestamp)
+            ORDER BY strftime('%Y-%m', timestamp) DESC LIMIT 12
+        """)
+        accuracy_history = [row[1] for row in cursor.fetchall()] or []
 
+        cursor.execute("""
+            SELECT
+                SUM(CASE WHEN Finish LIKE '%KO%' OR Finish LIKE '%TKO%' THEN 1 ELSE 0 END),
+                SUM(CASE WHEN Finish LIKE '%SUB%'                        THEN 1 ELSE 0 END),
+                SUM(CASE WHEN Finish LIKE '%DEC%' OR Finish IS NULL      THEN 1 ELSE 0 END)
+            FROM fights
+        """)
+        od = cursor.fetchone()
         outcome_distribution = {
-            'knockouts': random.randint(30, 50),
-            'submissions': random.randint(20, 40),
-            'decisions': random.randint(20, 40)
+            'knockouts':   od[0] or 0,
+            'submissions': od[1] or 0,
+            'decisions':   od[2] or 0
         }
 
+        cursor.execute("""
+            SELECT
+                SUM(CASE WHEN confidence >= 0.70 THEN 1 ELSE 0 END),
+                SUM(CASE WHEN confidence >= 0.55 AND confidence < 0.70 THEN 1 ELSE 0 END),
+                SUM(CASE WHEN confidence <  0.55 THEN 1 ELSE 0 END)
+            FROM predictions
+        """)
+        cd = cursor.fetchone()
         confidence_distribution = {
-            'high': random.randint(60, 80),
-            'medium': random.randint(15, 30),
-            'low': random.randint(5, 15)
+            'high':   cd[0] or 0,
+            'medium': cd[1] or 0,
+            'low':    cd[2] or 0
         }
 
-        weight_classes = ['Lightweight', 'Welterweight', 'Middleweight', 'Heavyweight', 'Featherweight']
-        accuracy_by_weight_class = {wc: random.randint(65, 90) for wc in weight_classes}
+        cursor.execute("""
+            SELECT f.WeightClass,
+                   AVG(CASE WHEN p.correct=1 THEN 1.0 ELSE 0.0 END)*100
+            FROM predictions p
+            JOIN fights f ON (f.RedFighter=p.red_fighter AND f.BlueFighter=p.blue_fighter)
+            WHERE p.actual_winner IS NOT NULL AND f.WeightClass IS NOT NULL
+            GROUP BY f.WeightClass ORDER BY 2 DESC
+        """)
+        accuracy_by_weight_class = {row[0]: round(row[1], 1) for row in cursor.fetchall()}
 
-        success_factors = [
-            {'factor': 'Striking Accuracy', 'impact': random.randint(70, 90)},
-            {'factor': 'Takedown Defense', 'impact': random.randint(60, 85)},
-            {'factor': 'Win Streak', 'impact': random.randint(55, 80)},
-            {'factor': 'Weight Advantage', 'impact': random.randint(40, 70)},
-            {'factor': 'Age Difference', 'impact': random.randint(30, 60)}
-        ]
+        try:
+            importance_path    = os.path.join(os.path.dirname(__file__), '..', 'models', 'feature_importance.pkl')
+            feature_importance = joblib.load(importance_path)
+            label_map = {
+                'RedOdds':           'Striking Accuracy',
+                'WinStreakDif':       'Win Streak',
+                'GrappleAdvRed':     'Takedown Defense',
+                'WeightClassAdvRed': 'Weight Advantage',
+                'ExpAdvRed':         'Experience',
+                'HeightAdvRed':      'Height Advantage',
+                'ReachAdvRed':       'Reach Advantage',
+            }
+            success_factors = sorted(
+                [{'factor': label_map[k], 'impact': round(abs(v) * 100, 1)}
+                 for k, v in feature_importance.items() if k in label_map],
+                key=lambda x: x['impact'], reverse=True
+            )[:5]
+        except Exception:
+            success_factors = []
 
         conn.close()
 
         return jsonify({
-            'total_predictions': metrics[0] if metrics else 0,
-            'accuracy': metrics[1] if metrics and metrics[1] else 0.75,
-            'recent_accuracy': recent_accuracy if recent_accuracy else 0.80,
-            'recent_predictions': recent_predictions,
-            'accuracy_history': accuracy_history,
-            'outcome_distribution': outcome_distribution,
+            'total_predictions':       metrics[0] if metrics else 0,
+            'accuracy':                metrics[1] if metrics and metrics[1] else 0,
+            'recent_accuracy':         recent_accuracy or 0,
+            'recent_predictions':      recent_predictions,
+            'accuracy_history':        accuracy_history,
+            'outcome_distribution':    outcome_distribution,
             'confidence_distribution': confidence_distribution,
-            'accuracy_by_weight_class': accuracy_by_weight_class,
-            'success_factors': success_factors
+            'accuracy_by_weight_class':accuracy_by_weight_class,
+            'success_factors':         success_factors
         })
 
     except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({
-            'total_predictions': 0,
-            'accuracy': 0.75,
-            'recent_accuracy': 0.80,
-            'recent_predictions': [],
-            'accuracy_history': [random.uniform(70, 90) for _ in range(12)],
-            'outcome_distribution': {
-                'knockouts': random.randint(30, 50),
-                'submissions': random.randint(20, 40),
-                'decisions': random.randint(20, 40)
-            },
-            'confidence_distribution': {
-                'high': random.randint(60, 80),
-                'medium': random.randint(15, 30),
-                'low': random.randint(5, 15)
-            },
-            'accuracy_by_weight_class': {
-                'Lightweight': random.randint(65, 90),
-                'Welterweight': random.randint(65, 90),
-                'Middleweight': random.randint(65, 90),
-                'Heavyweight': random.randint(65, 90),
-                'Featherweight': random.randint(65, 90)
-            },
-            'success_factors': [
-                {'factor': 'Striking Accuracy', 'impact': random.randint(70, 90)},
-                {'factor': 'Takedown Defense', 'impact': random.randint(60, 85)},
-                {'factor': 'Win Streak', 'impact': random.randint(55, 80)},
-                {'factor': 'Weight Advantage', 'impact': random.randint(40, 70)},
-                {'factor': 'Age Difference', 'impact': random.randint(30, 60)}
-            ]
-        })
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 
 @main.route('/top_performers', methods=['GET'])
 def top_performers():
     try:
-        # Generate top performers data
-        fighters = [
-            "Khabib Nurmagomedov", "Jon Jones", "Anderson Silva",
-            "Georges St-Pierre", "Amanda Nunes", "Israel Adesanya",
-            "Kamaru Usman", "Valentina Shevchenko", "Conor McGregor",
-            "Henry Cejudo"
-        ]
-
-        top_fighters = []
-        for fighter in fighters:
-            top_fighters.append({
-                'name': fighter,
-                'striking_accuracy': random.randint(75, 95),
-                'takedown_accuracy': random.randint(60, 90),
-                'stamina': random.randint(80, 95),
-                'knockout_power': random.randint(70, 95),
-                'defense': random.randint(80, 95)
-            })
-
-        most_knockouts = []
-        for i in range(5):
-            most_knockouts.append({
-                'name': random.choice(fighters),
-                'knockouts': random.randint(10, 20)
-            })
-
-        longest_win_streak = []
-        for i in range(5):
-            longest_win_streak.append({
-                'name': random.choice(fighters),
-                'streak': random.randint(8, 15)
-            })
-
-        highest_accuracy = []
-        for i in range(5):
-            highest_accuracy.append({
-                'name': random.choice(fighters),
-                'accuracy': random.randint(85, 95)
-            })
-
-        return jsonify({
-            'top_fighters': top_fighters,
-            'most_knockouts': most_knockouts,
-            'longest_win_streak': longest_win_streak,
-            'highest_accuracy': highest_accuracy
-        })
-
+        return jsonify(get_top_performers())
     except Exception as e:
-        print(f"Error: {str(e)}")
-        # Return sample data on error
-        return jsonify({
-            'top_fighters': [
-                {'name': 'Khabib Nurmagomedov', 'striking_accuracy': 85, 'takedown_accuracy': 90, 'stamina': 95,
-                 'knockout_power': 75, 'defense': 95},
-                {'name': 'Jon Jones', 'striking_accuracy': 88, 'takedown_accuracy': 85, 'stamina': 90,
-                 'knockout_power': 90, 'defense': 92},
-                {'name': 'Amanda Nunes', 'striking_accuracy': 90, 'takedown_accuracy': 80, 'stamina': 85,
-                 'knockout_power': 95, 'defense': 88}
-            ],
-            'most_knockouts': [
-                {'name': 'Derrick Lewis', 'knockouts': 16},
-                {'name': 'Anderson Silva', 'knockouts': 15},
-                {'name': 'Vitor Belfort', 'knockouts': 14}
-            ],
-            'longest_win_streak': [
-                {'name': 'Anderson Silva', 'streak': 16},
-                {'name': 'Jon Jones', 'streak': 14},
-                {'name': 'Demetrious Johnson', 'streak': 13}
-            ],
-            'highest_accuracy': [
-                {'name': 'Max Holloway', 'accuracy': 92},
-                {'name': 'Israel Adesanya', 'accuracy': 90},
-                {'name': 'Valentina Shevchenko', 'accuracy': 89}
-            ]
-        })
+        traceback.print_exc()
+        return jsonify({'top_fighters': [], 'most_knockouts': [],
+                        'longest_win_streak': [], 'highest_accuracy': []}), 500
+
 
 @main.route('/fighter_analytics_details', methods=['POST'])
 def fighter_analytics_details():
     try:
         fighter_name = request.form.get('fighter')
-        conn = get_conn()
-        cursor = conn.cursor()
 
+        conn   = get_conn()
+        cursor = conn.cursor()
         cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
         result = cursor.fetchone()
 
         if not result:
+            conn.close()
             return jsonify({'error': 'Fighter not found'}), 404
 
-        columns = [col[0] for col in cursor.description]
-        stats = dict(zip(columns, result))
+        columns    = [col[0] for col in cursor.description]
+        stats      = dict(zip(columns, result))
         exact_name = stats['name']
 
+        # Always attempt live scrape if never scraped from ufcstats
+        # (last_scraped is NULL means it only exists from the CSV import)
+        if not stats.get('last_scraped'):
+            conn.close()
+            try:
+                from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter, upsert_fighter_fights
+                print(f"[Analytics] Scraping live data for: {exact_name}")
+                fresh = scrape_fighter_by_name(exact_name)
+                if fresh:
+                    c   = get_conn()
+                    cur = c.cursor()
+                    try:
+                        upsert_fighter(cur, fresh)
+                        detail_url = fresh.get('detail_url')
+                        if detail_url:
+                            # Remove stale CSV fights for this fighter first
+                            cur.execute("""
+                                DELETE FROM fights 
+                                WHERE (RedFighter=? OR BlueFighter=?)
+                                AND Date NOT LIKE '____-__-__%'
+                            """, (exact_name, exact_name))
+                            print(
+                                f"[Analytics] Cleared malformed fight rows for {exact_name}")
+                            upsert_fighter_fights(cur, exact_name, detail_url)
+                        c.commit()
+                    finally:
+                        c.close()
+                    # Re-fetch from DB so stats reflects the newly saved data
+                    c      = get_conn()
+                    cur    = c.cursor()
+                    cur.execute("SELECT * FROM fighters WHERE name = ?", (exact_name,))
+                    fresh_row = cur.fetchone()
+                    c.close()
+                    if fresh_row:
+                        cols  = [col[0] for col in cur.description]
+                        stats = dict(zip(cols, fresh_row))
+                        print(f"[Analytics] Updated stats from live scrape: {exact_name}")
+                else:
+                    print(f"[Analytics] Scrape returned nothing for: {exact_name}")
+            except Exception as e:
+                print(f"[Analytics] Scrape failed: {e}")
+            conn   = get_conn()
+            cursor = conn.cursor()
+        else:
+            print(f"[Analytics] Using cached data, last scraped: {stats.get('last_scraped')}")
+
+        # Compute performance entirely from fights table
         cursor.execute("""
-            SELECT 
-                f.Date, 
-                CASE 
-                    WHEN f.RedFighter = ? THEN f.BlueFighter 
-                    ELSE f.RedFighter 
-                END AS opponent,
-                CASE 
-                    WHEN f.Winner = 'Red' AND f.RedFighter = ? THEN 'Win'
-                    WHEN f.Winner = 'Blue' AND f.BlueFighter = ? THEN 'Win'
-                    WHEN f.Winner = 'Draw' THEN 'Draw'
-                    ELSE 'Loss'
-                END AS result,
-                f.Finish,
-                f.WeightClass,
-                f.NumberOfRounds
-            FROM fights f
-            WHERE f.RedFighter = ?OR f.BlueFighter = ?
-            ORDER BY f.Date DESC
-            LIMIT 10
-        """, (exact_name, exact_name, exact_name, exact_name, exact_name))
+            SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN (Winner='Red'  AND RedFighter=?)
+                           OR (Winner='Blue' AND BlueFighter=?) THEN 1 ELSE 0 END) AS wins,
+                SUM(CASE WHEN (Winner='Red'  AND BlueFighter=?)
+                           OR (Winner='Blue' AND RedFighter=?)  THEN 1 ELSE 0 END) AS losses,
+                SUM(CASE WHEN Winner='Draw' THEN 1 ELSE 0 END)                     AS draws,
+                SUM(CASE WHEN ((Winner='Red'  AND RedFighter=?)
+                             OR (Winner='Blue' AND BlueFighter=?))
+                          AND (Finish LIKE '%KO%' OR Finish LIKE '%TKO%')
+                          THEN 1 ELSE 0 END) AS ko_wins,
+                SUM(CASE WHEN ((Winner='Red'  AND RedFighter=?)
+                             OR (Winner='Blue' AND BlueFighter=?))
+                          AND Finish LIKE '%SUB%'
+                          THEN 1 ELSE 0 END) AS sub_wins
+            FROM fights
+            WHERE RedFighter=? OR BlueFighter=?
+        """, (
+            exact_name, exact_name,
+            exact_name, exact_name,
+            exact_name, exact_name,
+            exact_name, exact_name,
+            exact_name, exact_name
+        ))
 
-        fight_history = []
-        for row in cursor.fetchall():
-            fight_history.append({
-                'date': row[0],
-                'opponent': row[1],
-                'result': row[2],
-                'method': row[3] or 'Decision',
-                'weight_class': row[4],
-                'rounds': row[5]
-            })
-
-        cursor.execute("""
-            SELECT 
-                COUNT(*) AS total_fights,
-                SUM(CASE 
-                    WHEN (f.Winner = 'Red' AND f.RedFighter = ?) 
-                      OR (f.Winner = 'Blue' AND f.BlueFighter = ?) 
-                    THEN 1 ELSE 0 END) AS wins,
-                SUM(CASE 
-                    WHEN ((f.Winner = 'Red' AND f.RedFighter = ?) 
-                      OR (f.Winner = 'Blue' AND f.BlueFighter = ?))
-                    AND (f.Finish LIKE '%KO%' OR f.Finish LIKE '%TKO%')
-                    THEN 1 ELSE 0 END) AS ko_wins,
-                SUM(CASE 
-                    WHEN ((f.Winner = 'Red' AND f.RedFighter = ?) 
-                      OR (f.Winner = 'Blue' AND f.BlueFighter = ?))
-                    AND (f.Finish LIKE '%SUB%')
-                    THEN 1 ELSE 0 END) AS sub_wins,
-                SUM(CASE WHEN f.Winner = 'Draw' THEN 1 ELSE 0 END) AS draws
-            FROM fights f
-            WHERE f.RedFighter = ? OR f.BlueFighter = ?
-        """, (exact_name, exact_name, exact_name, exact_name, exact_name, exact_name, exact_name, exact_name))
-
-        metrics = cursor.fetchone()
-        wins = metrics[1] if metrics[1] else 0
-        total_fights = metrics[0] if metrics[0] else 0
-        draws = metrics[4] if metrics[4] else 0
-        losses = total_fights - wins - draws
+        row      = cursor.fetchone()
+        total    = row[0] or 0
+        wins     = row[1] or 0
+        losses   = row[2] or 0
+        draws    = row[3] or 0
+        ko_wins  = row[4] or 0
+        sub_wins = row[5] or 0
+        dec_wins = max(0, wins - ko_wins - sub_wins)
 
         performance = {
-            'total_fights': total_fights,
-            'wins': wins,
-            'losses': losses,
-            'draws': draws,
-            'ko_wins': metrics[2] if metrics[2] else 0,
-            'sub_wins': metrics[3] if metrics[3] else 0,
-            'decision_wins': wins - (metrics[2] or 0) - (metrics[3] or 0),
-            'win_rate': (wins / total_fights) * 100 if total_fights > 0 else 0,
-            'ko_rate': (metrics[2] / wins) * 100 if wins > 0 else 0,
-            'sub_rate': (metrics[3] / wins) * 100 if wins > 0 else 0
+            'total_fights':  total,
+            'wins':          wins,
+            'losses':        losses,
+            'draws':         draws,
+            'ko_wins':       ko_wins,
+            'sub_wins':      sub_wins,
+            'decision_wins': dec_wins,
+            'win_rate':  round((wins / total) * 100, 1) if total > 0 else 0,
+            'ko_rate':   round((ko_wins  / wins) * 100, 1) if wins > 0 else 0,
+            'sub_rate':  round((sub_wins / wins) * 100, 1) if wins > 0 else 0,
         }
+
+        cursor.execute("""
+            SELECT
+                f.Date,
+                CASE WHEN f.RedFighter=? THEN f.BlueFighter ELSE f.RedFighter END,
+                CASE
+                    WHEN f.Winner='Red'  AND f.RedFighter=?  THEN 'Win'
+                    WHEN f.Winner='Blue' AND f.BlueFighter=? THEN 'Win'
+                    WHEN f.Winner='Draw' THEN 'Draw'
+                    ELSE 'Loss'
+                END,
+                f.Finish, f.WeightClass, f.NumberOfRounds
+            FROM fights f
+            WHERE f.RedFighter=? OR f.BlueFighter=?
+            ORDER BY f.Date DESC LIMIT 10
+        """, (exact_name, exact_name, exact_name, exact_name, exact_name))
+
+        fight_history = [
+            {'date': r[0], 'opponent': r[1], 'result': r[2],
+             'method': r[3] or 'Decision', 'weight_class': r[4], 'rounds': r[5]}
+            for r in cursor.fetchall()
+        ]
 
         conn.close()
 
         return jsonify({
-            'basic_stats': stats,
+            'basic_stats':         stats,
             'performance_metrics': performance,
-            'fight_history': fight_history
+            'fight_history':       fight_history
         })
 
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/upcoming_events', methods=['GET'])
+def upcoming_events():
+    try:
+        conn   = get_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT event_name, event_date, location, red_fighter, blue_fighter, weight_class
+            FROM upcoming_events
+            WHERE red_fighter != ''
+            ORDER BY event_date ASC
+        """)
+        cols   = ['event_name', 'event_date', 'location', 'red_fighter', 'blue_fighter', 'weight_class']
+        events = [dict(zip(cols, row)) for row in cursor.fetchall()]
+        conn.close()
+        return jsonify({'events': events})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
