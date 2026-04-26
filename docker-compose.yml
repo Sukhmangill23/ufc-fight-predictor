@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://ufcuser:ufcpassword@db:5432/ufcdb
+      - JWT_SECRET_KEY=your_strong_secret_key_change_this_in_prod
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/models:/app/models
+      - ./backend/database:/app/database
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=ufcuser
+      - POSTGRES_PASSWORD=ufcpassword
+      - POSTGRES_DB=ufcdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ufcuser -d ufcdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5001
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
