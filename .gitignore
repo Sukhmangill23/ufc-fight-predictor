@@ -9,3 +9,8 @@ node_modules/
 build/
 .DS_Store
 .env
+backend/database/ufc.db
+backend/check.py
+backend/dedup.py
+backend/fix_db.py
+backend/script.py
