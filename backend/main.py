@@ -1,11 +1,9 @@
-# main.py
 from ml.model_pipeline import train_model
 from model_retrain import temporal_cross_validation
 from database import init_db
 
 if __name__ == "__main__":
     init_db.init_database()
-    init_db.import_csv_data()
     print("Training UFC prediction model...")
 
     print("\n=== Running Temporal Validation ===")
