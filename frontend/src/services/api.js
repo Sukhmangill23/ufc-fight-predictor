@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-
-const API_BASE = 'http://localhost:5001';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -22,7 +21,6 @@ export const predictFight = (data) => {
   formData.append('blue_fighter', data.blue_fighter);
   formData.append('number_of_rounds', data.number_of_rounds);
   formData.append('title_bout', data.title_bout);
-
   return api.post(`/predict`, formData);
 };
 
@@ -32,20 +30,19 @@ export const getPredictionInsights = (data) => {
   formData.append('blue_fighter', data.blue_fighter);
   formData.append('number_of_rounds', data.number_of_rounds);
   formData.append('title_bout', data.title_bout);
-
   return api.post(`/prediction_insights`, formData);
 };
 
-export const getFighterAnalytics = () => {
-  return api.get(`/fighter_analytics`);
-};
+export const getFighterAnalytics = () =>
+  api.get(`/fighter_analytics`);
 
-export const getPredictionHistory = () => {
-  return api.get(`/prediction_history`);
-};
+export const getPredictionHistory = () =>
+  api.get(`/prediction_history`);
 
 export const getFighterAnalyticsDetails = (fighter) => {
   const formData = new URLSearchParams();
   formData.append('fighter', fighter);
   return api.post(`/fighter_analytics_details`, formData);
 };
+export const getUpcomingEvents = () =>
+  api.get(`/upcoming_events`);

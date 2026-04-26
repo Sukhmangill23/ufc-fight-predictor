@@ -1,9 +1,10 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../App.css'
-
+import '../App.css';
 
 const AuthContext = createContext();
+
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -24,7 +25,7 @@ export function AuthProvider({ children }) {
 
   const register = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:5001/register', {
+      const response = await fetch(`${API_BASE}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -54,7 +55,7 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:5001/login', {
+      const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -84,13 +85,7 @@ export function AuthProvider({ children }) {
     navigate('/login');
   };
 
-  const value = {
-    currentUser,
-    register,
-    login,
-    logout,
-    loading
-  };
+  const value = { currentUser, register, login, logout, loading };
 
   return (
     <AuthContext.Provider value={value}>
