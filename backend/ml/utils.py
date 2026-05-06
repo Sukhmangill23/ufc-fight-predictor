@@ -70,58 +70,24 @@ def get_fighter_stats(fighter_name):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
+        # Try exact match first
+        cursor.execute("SELECT * FROM fighters WHERE name = ?", (fighter_name,))
         result = cursor.fetchone()
+
+        # Fall back to LIKE only if exact match fails
+        if not result:
+            cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
+            result = cursor.fetchone()
 
         if result:
             columns = [col[0] for col in cursor.description]
-            stats = dict(zip(columns, result))
-            conn.close()
-
-            # Check staleness
-            last_scraped = stats.get('last_scraped')
-            is_stale = True
-            if last_scraped:
-                try:
-                    from datetime import datetime
-                    is_stale = (datetime.now() - datetime.fromisoformat(last_scraped)).days > 30
-                except:
-                    is_stale = True
-
-            if is_stale:
-                # Stale — refresh in background, return what we have now
-                import threading
-                from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter
-                def bg_refresh():
-                    fresh = scrape_fighter_by_name(fighter_name)
-                    if fresh:
-                        c = sqlite3.connect(db_path)
-                        cur = c.cursor()
-                        upsert_fighter(cur, fresh)
-                        c.commit()
-                        c.close()
-                threading.Thread(target=bg_refresh, daemon=True).start()
-
-            return stats
-
-        else:
-            conn.close()
-            # Not in DB at all — scrape immediately (blocking, ~2-3 sec)
-            print(f"[Utils] '{fighter_name}' not found — scraping now...")
-            from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter
-            fresh = scrape_fighter_by_name(fighter_name)
-            if fresh:
-                c = sqlite3.connect(db_path)
-                cur = c.cursor()
-                upsert_fighter(cur, fresh)
-                c.commit()
-                c.close()
-                return fresh
-            return None
-
+            return dict(zip(columns, result))
+        return None
     except Exception as e:
         print(f"Error fetching fighter stats: {str(e)}")
         return None
+    finally:
+        conn.close()
 
 def fill_missing_stats(stats):
     db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')

@@ -8,6 +8,7 @@ import traceback
 from ml.utils import get_fighter_stats, fill_missing_stats
 from .services.fighter_service import get_top_performers
 from threading import Thread
+from .services.auth_service import register_user, authenticate_user
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 main = Blueprint('main', __name__)
@@ -246,11 +247,11 @@ def refresh_fighters():
 def get_fighter_stats_route():
     fighter_name = request.form.get('fighter')
 
-    conn   = get_conn()
+    conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT last_scraped FROM fighters WHERE name LIKE ? LIMIT 1",
-        (f'%{fighter_name}%',)
+        "SELECT last_scraped FROM fighters WHERE name = ? LIMIT 1",
+        (fighter_name,)
     )
     row = cursor.fetchone()
     conn.close()
@@ -260,7 +261,6 @@ def get_fighter_stats_route():
     if never_scraped:
         try:
             from app.services.fighter_scraper import scrape_fighter_by_name, upsert_fighter, upsert_fighter_fights
-            print(f"[Route] Force-scraping: {fighter_name}")
             fresh = scrape_fighter_by_name(fighter_name)
             if fresh:
                 c   = get_conn()
@@ -275,12 +275,12 @@ def get_fighter_stats_route():
                         )
                         upsert_fighter_fights(cur, fresh['name'], detail_url)
                     c.commit()
-                    print(f"[Route] Force-scraped: {fresh.get('name')}")
                 finally:
                     c.close()
         except Exception as e:
             print(f"[Route] Force-scrape failed: {e}")
 
+    # Exact match first, then fallback to LIKE
     stats = get_fighter_stats(fighter_name)
     if not stats:
         return jsonify({'error': 'Fighter not found'})
