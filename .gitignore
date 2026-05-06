@@ -14,3 +14,6 @@ backend/check.py
 backend/dedup.py
 backend/fix_db.py
 backend/script.py
+backend/venv/
+.DS_Store
+.idea/
