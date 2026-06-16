@@ -1,24 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
-import sqlite3
-import os
 from datetime import datetime
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'database', 'ufc.db')
+from app.db import get_conn
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
 
-
-def get_conn():
-    conn = sqlite3.connect(DB_PATH, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL;")
-    return conn
-
-
 def scrape_fighter_page(letter):
-    """Scrape all fighters for a given starting letter from ufcstats.com"""
     url = f"http://www.ufcstats.com/statistics/fighters?char={letter}&page=all"
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
@@ -32,36 +21,36 @@ def scrape_fighter_page(letter):
                 continue
 
             first = cols[0].get_text(strip=True)
-            last  = cols[1].get_text(strip=True)
+            last = cols[1].get_text(strip=True)
             if not first and not last:
                 continue
 
             name = f"{first} {last}".strip()
 
             height_raw = cols[3].get_text(strip=True)
-            reach_raw  = cols[5].get_text(strip=True)
-            stance     = cols[6].get_text(strip=True)
-            wins_raw   = cols[7].get_text(strip=True)
+            reach_raw = cols[5].get_text(strip=True)
+            stance = cols[6].get_text(strip=True)
+            wins_raw = cols[7].get_text(strip=True)
             losses_raw = cols[8].get_text(strip=True)
-            draws_raw  = cols[9].get_text(strip=True)
+            draws_raw = cols[9].get_text(strip=True)
 
-            wins   = safe_int(wins_raw)
+            wins = safe_int(wins_raw)
             losses = safe_int(losses_raw)
-            draws  = safe_int(draws_raw)
+            draws = safe_int(draws_raw)
 
             detail_link = cols[0].select_one('a')
-            detail_url  = detail_link['href'] if detail_link else None
+            detail_url = detail_link['href'] if detail_link else None
 
             fighters.append({
-                'name':         name,
-                'height':       parse_height(height_raw),
-                'reach':        parse_reach(reach_raw),
-                'stance':       stance if stance else 'Orthodox',
-                'wins':         wins,
-                'losses':       losses,
-                'draws':        draws,
+                'name': name,
+                'height': parse_height(height_raw),
+                'reach': parse_reach(reach_raw),
+                'stance': stance if stance else 'Orthodox',
+                'wins': wins,
+                'losses': losses,
+                'draws': draws,
                 'total_fights': wins + losses + draws,
-                'detail_url':   detail_url
+                'detail_url': detail_url
             })
 
         return fighters
@@ -72,7 +61,6 @@ def scrape_fighter_page(letter):
 
 
 def scrape_fighter_detail(detail_url):
-    """Pull per-fight stats from a fighter's detail page."""
     if not detail_url:
         return {}
     try:
@@ -85,7 +73,7 @@ def scrape_fighter_detail(detail_url):
             label = box.select_one('i.b-list__box-item-title')
             if not label:
                 continue
-            key   = label.get_text(strip=True).lower().replace(':', '').strip()
+            key = label.get_text(strip=True).lower().replace(':', '').strip()
             value = box.get_text(strip=True).replace(label.get_text(strip=True), '').strip()
 
             if 'slpm' in key:
@@ -99,7 +87,11 @@ def scrape_fighter_detail(detail_url):
             elif 'dob' in key:
                 stats['dob'] = value
             elif 'weight' in key:
-                stats['weight_class'] = map_weight_class(value)
+                # Map from lbs first, fall back to keyword map
+                wc = map_weight_class_from_lbs(value)
+                if not wc or wc == 'Unknown':
+                    wc = map_weight_class(value)
+                stats['weight_class'] = wc
             elif 'height' in key and 'avg_sig_str' not in stats:
                 stats['height'] = parse_height(value)
             elif 'reach' in key:
@@ -123,14 +115,11 @@ def scrape_fighter_detail(detail_url):
             if len(cols) < 8:
                 continue
 
-            # col 0 = result, col 7 = method (confirmed from debug output)
             result_ps = cols[0].select('p')
             method_ps = cols[7].select('p')
 
-            result_text = result_ps[0].get_text(
-                strip=True).lower() if result_ps else ''
-            method_text = method_ps[0].get_text(
-                strip=True).upper() if method_ps else ''
+            result_text = result_ps[0].get_text(strip=True).lower() if result_ps else ''
+            method_text = method_ps[0].get_text(strip=True).upper() if method_ps else ''
 
             if result_text == 'win':
                 if 'KO' in method_text or 'TKO' in method_text:
@@ -150,14 +139,16 @@ def scrape_fighter_detail(detail_url):
 
 
 def scrape_fighter_by_name(name):
-    """Search ufcstats.com for a specific fighter by name."""
     name_parts = name.strip().split()
-    last_name  = name_parts[-1] if name_parts else name
+    last_name = name_parts[-1] if name_parts else name
     search_url = f"http://www.ufcstats.com/statistics/fighters/search?query={last_name}"
     try:
         resp = requests.get(search_url, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(resp.text, 'html.parser')
         rows = soup.select('tr.b-statistics__table-row')
+
+        best_match = None
+        search_words = [w.lower() for w in name.split() if w]
 
         for row in rows:
             cols = row.select('td.b-statistics__table-col')
@@ -165,30 +156,34 @@ def scrape_fighter_by_name(name):
                 continue
 
             first = cols[0].get_text(strip=True)
-            last  = cols[1].get_text(strip=True)
+            last = cols[1].get_text(strip=True)
             if not first and not last:
                 continue
 
-            scraped_name  = f"{first} {last}".strip()
-            search_words  = [w.lower() for w in name.split() if w]
+            scraped_name = f"{first} {last}".strip()
+
+            # Require ALL words to match — prevents "Paul Jones" matching "Jon Jones"
             if not all(w in scraped_name.lower() for w in search_words):
                 continue
 
-            detail_link = cols[0].select_one('a')
-            detail_url  = detail_link['href'] if detail_link else None
+            # Prefer exact full-name match over partial
+            is_exact = scraped_name.lower() == name.strip().lower()
 
-            wins   = safe_int(cols[7].get_text(strip=True)) if len(cols) > 7 else 0
+            detail_link = cols[0].select_one('a')
+            detail_url = detail_link['href'] if detail_link else None
+
+            wins = safe_int(cols[7].get_text(strip=True)) if len(cols) > 7 else 0
             losses = safe_int(cols[8].get_text(strip=True)) if len(cols) > 8 else 0
-            draws  = safe_int(cols[9].get_text(strip=True)) if len(cols) > 9 else 0
+            draws = safe_int(cols[9].get_text(strip=True)) if len(cols) > 9 else 0
 
             fighter = {
-                'name':         scraped_name,
-                'height':       parse_height(cols[3].get_text(strip=True)) if len(cols) > 3 else None,
-                'reach':        parse_reach(cols[5].get_text(strip=True))  if len(cols) > 5 else None,
-                'stance':       cols[6].get_text(strip=True)               if len(cols) > 6 else 'Orthodox',
-                'wins':         wins,
-                'losses':       losses,
-                'draws':        draws,
+                'name': scraped_name,
+                'height': parse_height(cols[3].get_text(strip=True)) if len(cols) > 3 else None,
+                'reach': parse_reach(cols[5].get_text(strip=True)) if len(cols) > 5 else None,
+                'stance': cols[6].get_text(strip=True) if len(cols) > 6 else 'Orthodox',
+                'wins': wins,
+                'losses': losses,
+                'draws': draws,
                 'total_fights': wins + losses + draws,
             }
 
@@ -197,9 +192,14 @@ def scrape_fighter_by_name(name):
                 fighter.update(detail_stats)
                 fighter['detail_url'] = detail_url
 
-            return fighter
+            if is_exact:
+                return fighter  # perfect match, stop immediately
 
-        return None
+            # Keep as best candidate but keep scanning for an exact match
+            if best_match is None:
+                best_match = fighter
+
+        return best_match
 
     except Exception as e:
         print(f"[FighterScraper] Search error for '{name}': {e}")
@@ -207,13 +207,25 @@ def scrape_fighter_by_name(name):
 
 
 def upsert_fighter(cursor, fighter):
-    """Insert or update a fighter row — reuses the caller's cursor/connection."""
     cursor.execute("""
-        INSERT OR REPLACE INTO fighters
+        INSERT INTO fighters
             (name, height, reach, stance, age, weight_class,
              win_streak, ko_wins, avg_sig_str, avg_td_pct, avg_sub_att,
              total_fights, last_scraped)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (name) DO UPDATE SET
+            height = EXCLUDED.height,
+            reach = EXCLUDED.reach,
+            stance = EXCLUDED.stance,
+            age = EXCLUDED.age,
+            weight_class = EXCLUDED.weight_class,
+            win_streak = EXCLUDED.win_streak,
+            ko_wins = EXCLUDED.ko_wins,
+            avg_sig_str = EXCLUDED.avg_sig_str,
+            avg_td_pct = EXCLUDED.avg_td_pct,
+            avg_sub_att = EXCLUDED.avg_sub_att,
+            total_fights = EXCLUDED.total_fights,
+            last_scraped = EXCLUDED.last_scraped
     """, (
         fighter.get('name'),
         fighter.get('height'),
@@ -230,53 +242,50 @@ def upsert_fighter(cursor, fighter):
         datetime.now().isoformat()
     ))
 
-def upsert_fighter_fights(cursor, fighter_name, detail_url):
+def upsert_fighter_fights(cursor, fighter_name, detail_url, fallback_weight_class=None):
     if not detail_url:
         return
     try:
         resp = requests.get(detail_url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(resp.text, 'html.parser')
 
-        # Delete ALL existing fights for this fighter first — full refresh
         cursor.execute(
-            "DELETE FROM fights WHERE RedFighter=? OR BlueFighter=?",
+            "DELETE FROM fights WHERE RedFighter=%s OR BlueFighter=%s",
             (fighter_name, fighter_name)
         )
 
-        # ufcstats detail page structure:
-        # - Non-hover <tr> rows = event header rows (contain date, event name, location)
-        # - Hover <tr> rows     = individual fight stat rows
-        # We need to walk ALL rows in order and track the last seen date
-
         all_rows = soup.select('tr.b-fight-details__table-row')
-        current_date       = ''
-        current_event      = ''
-        current_weight     = ''
+        current_date = ''
+        current_weight = fallback_weight_class or 'Unknown'
         inserted = 0
 
         for row in all_rows:
             is_fight = 'b-fight-details__table-row__hover' in row.get('class', [])
 
             if not is_fight:
-                # This is an event header row — extract date and weight class
-                # These rows have <td> cells with the event info
-                cells = row.select('td')
-                for cell in cells:
-                    text = cell.get_text(strip=True)
-                    # Try to parse as date: "Jun 28, 2025"
-                    try:
-                        from datetime import datetime
-                        parsed = datetime.strptime(text, '%b %d, %Y')
-                        current_date = parsed.strftime('%Y-%m-%d')
-                    except ValueError:
-                        pass
-                    # Weight class detection
-                    wc = map_weight_class(text)
-                    if wc != 'Lightweight' or 'weight' in text.lower():
-                        current_weight = wc
+                for cell in row.select('td'):
+                    candidates = [cell.get_text(strip=True)]
+                    candidates += [a.get_text(strip=True) for a in cell.select('a')]
+                    for text in candidates:
+                        # Try to parse date
+                        for fmt in ('%B %d, %Y', '%b %d, %Y', '%b. %d, %Y'):
+                            try:
+                                parsed = datetime.strptime(text.strip(), fmt)
+                                current_date = parsed.strftime('%Y-%m-%d')
+                                break
+                            except ValueError:
+                                continue
+                        # Try to parse weight class from header text
+                        text_lower = text.lower()
+                        found_wc = None
+                        for key, val in WEIGHT_MAP.items():
+                            if key in text_lower:
+                                found_wc = val
+                                break
+                        if found_wc:
+                            current_weight = found_wc
                 continue
 
-            # Fight row — extract stats
             cols = row.select('td.b-fight-details__table-col')
             if len(cols) < 8:
                 continue
@@ -287,14 +296,12 @@ def upsert_fighter_fights(cursor, fighter_name, detail_url):
                 return [p.get_text(strip=True) for p in cols[idx].select('p')]
 
             result_texts = col_texts(0)
-            result_text  = result_texts[0].lower() if result_texts else ''
+            result_text = result_texts[0].lower() if result_texts else ''
 
-            # Opponent — col 1 has TWO <p> tags: [fighter_name, opponent_name]
             fighter_ps = col_texts(1)
             if len(fighter_ps) < 2:
                 continue
-            # First p is always the page owner (Topuria), second is opponent
-            red_fighter  = fighter_ps[0]
+            red_fighter = fighter_ps[0]
             blue_fighter = fighter_ps[1]
 
             if not red_fighter or not blue_fighter:
@@ -307,22 +314,21 @@ def upsert_fighter_fights(cursor, fighter_name, detail_url):
             else:
                 winner = 'Draw'
 
-            method     = col_texts(7)[0] if col_texts(7) else ''
+            method = col_texts(7)[0] if col_texts(7) else ''
             rounds_raw = col_texts(8)[0] if col_texts(8) else '3'
-            rounds     = safe_int(rounds_raw) or 3
+            rounds = safe_int(rounds_raw) or 3
 
-            # Weight class — try to get from the event name in col 6
-            event_text = col_texts(6)[0] if col_texts(6) else ''
-            wc_raw = col_texts(6)[0] if col_texts(6) else ''
-            weight_class = map_weight_class(wc_raw) if wc_raw else 'Unknown'
+            # Use current_weight from header row; fall back to fighter's own weight class
+            weight_class = current_weight
 
-            print(f"[FightHistory] Inserting: {red_fighter} vs {blue_fighter} | {current_date} | {method} | {weight_class} | R{rounds}")
+            print(
+                f"[FightHistory] Inserting: {red_fighter} vs {blue_fighter} | {current_date} | {method} | {weight_class} | R{rounds}")
 
             cursor.execute("""
-                INSERT INTO fights
-                    (RedFighter, BlueFighter, Date, Winner, WeightClass, NumberOfRounds, Finish)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (red_fighter, blue_fighter, current_date, winner, weight_class, rounds, method))
+                           INSERT INTO fights
+                           (RedFighter, BlueFighter, Date, Winner, WeightClass, NumberOfRounds, Finish)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s)
+                           """, (red_fighter, blue_fighter, current_date, winner, weight_class, rounds, method))
             inserted += 1
 
         print(f"[FightHistory] Done. Inserted {inserted} fights for {fighter_name}")
@@ -332,11 +338,8 @@ def upsert_fighter_fights(cursor, fighter_name, detail_url):
         traceback.print_exc()
         print(f"[FightHistory] Error for {fighter_name}: {e}")
 
+
 def run_fighter_scraper(letters=None, detail=True):
-    """
-    Main entry — scrape fighters A-Z (or subset).
-    Each letter gets its own short-lived connection so locks don't pile up.
-    """
     if letters is None:
         import string
         letters = list(string.ascii_lowercase)
@@ -347,8 +350,7 @@ def run_fighter_scraper(letters=None, detail=True):
         print(f"[FighterScraper] Scraping letter: {letter.upper()}")
         fighters = scrape_fighter_page(letter)
 
-        # One connection per letter — open, write, close immediately
-        conn   = get_conn()
+        conn = get_conn()
         cursor = conn.cursor()
         try:
             for f in fighters:
@@ -362,20 +364,20 @@ def run_fighter_scraper(letters=None, detail=True):
             print(f"[FighterScraper] Write error on letter {letter}: {e}")
             conn.rollback()
         finally:
-            conn.close()   # always release the lock
+            conn.close()
 
     print(f"[FighterScraper] Done. Upserted {total} fighters.")
     return total
 
 
-# ── helpers ──────────────────────────────────────────────────────────────────
+# ── helpers ───────────────────────────────────────────────────────────────────
 
 def parse_height(raw):
     try:
         raw = raw.replace('"', '').strip()
         if "'" in raw:
-            parts  = raw.split("'")
-            feet   = int(parts[0].strip())
+            parts = raw.split("'")
+            feet = int(parts[0].strip())
             inches = int(parts[1].strip()) if parts[1].strip() else 0
             return round((feet * 30.48) + (inches * 2.54), 1)
         return float(raw)
@@ -407,7 +409,7 @@ def safe_float(val):
 
 def compute_age(dob_str):
     try:
-        dob   = datetime.strptime(dob_str.strip(), '%b %d, %Y')
+        dob = datetime.strptime(dob_str.strip(), '%b %d, %Y')
         today = datetime.today()
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
     except Exception:
@@ -415,23 +417,47 @@ def compute_age(dob_str):
 
 
 WEIGHT_MAP = {
-    'straw':       'Strawweight',
-    'fly':         'Flyweight',
-    'bantam':      'Bantamweight',
-    'feather':     'Featherweight',
-    'light':       'Lightweight',
-    'welter':      'Welterweight',
-    'middle':      'Middleweight',
-    'light heavy': 'Light Heavyweight',
-    'heavy':       'Heavyweight',
+    'straw':        'Strawweight',
+    'fly':          'Flyweight',
+    'bantam':       'Bantamweight',
+    'feather':      'Featherweight',
+    'light heavy':  'Light Heavyweight',
+    'light':        'Lightweight',
+    'welter':       'Welterweight',
+    'middle':       'Middleweight',
+    'heavy':        'Heavyweight',
 }
 
 
 def map_weight_class(raw):
     if not raw:
-        return 'Lightweight'
+        return 'Unknown'
     raw_lower = raw.lower()
+    # Check "light heavy" before "light" to avoid wrong match
+    if 'light heavy' in raw_lower:
+        return 'Light Heavyweight'
     for key, val in WEIGHT_MAP.items():
         if key in raw_lower:
             return val
-    return 'Lightweight'
+    return 'Unknown'
+
+
+def map_weight_class_from_lbs(raw):
+    """Map a weight string like '155 lbs.' or '170 lbs.' to a UFC weight class."""
+    try:
+        digits = ''.join(c for c in raw if c.isdigit() or c == '.')
+        if not digits:
+            return None
+        lbs = float(digits)
+    except Exception:
+        return None
+
+    if lbs <= 115:  return 'Strawweight'
+    if lbs <= 125:  return 'Flyweight'
+    if lbs <= 135:  return 'Bantamweight'
+    if lbs <= 145:  return 'Featherweight'
+    if lbs <= 155:  return 'Lightweight'
+    if lbs <= 170:  return 'Welterweight'
+    if lbs <= 185:  return 'Middleweight'
+    if lbs <= 205:  return 'Light Heavyweight'
+    return 'Heavyweight'

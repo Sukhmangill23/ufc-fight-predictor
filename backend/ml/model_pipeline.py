@@ -75,8 +75,9 @@ FEATURES = [
 # ── Data loading ──────────────────────────────────────────────────────────────
 
 def load_data():
-    conn = sqlite3.connect(DB_PATH)
-    df   = pd.read_sql_query("SELECT * FROM fights", conn)
+    from app.db import get_conn
+    conn = get_conn()
+    df = pd.read_sql_query("SELECT * FROM fights", conn)
     conn.close()
     print(f"[Pipeline] Loaded {len(df)} fights from DB")
     return df

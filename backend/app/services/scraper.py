@@ -1,17 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
-import sqlite3
-import os
 from datetime import datetime
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'database', 'ufc.db')
+from app.db import get_conn
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
 
-def get_conn():
-    return sqlite3.connect(DB_PATH)
 
 def scrape_upcoming_events():
     """Scrape upcoming UFC events from ufcstats.com"""
@@ -59,7 +54,6 @@ def scrape_event_fights(event_url):
             if len(cols) < 7:
                 continue
 
-            # Fighter names are in col index 1, inside <p> tags with <a> links
             fighter_links = cols[1].select('p.b-fight-details__table-text a')
             if len(fighter_links) < 2:
                 continue
@@ -67,7 +61,6 @@ def scrape_event_fights(event_url):
             red_fighter = fighter_links[0].text.strip()
             blue_fighter = fighter_links[1].text.strip()
 
-            # Weight class is in col index 6
             weight_class_p = cols[6].select_one('p.b-fight-details__table-text')
             weight_class = weight_class_p.text.strip() if weight_class_p else 'Unknown'
 
@@ -82,22 +75,32 @@ def scrape_event_fights(event_url):
         print(f"Error scraping event fights: {e}")
         return []
 
+
 def save_upcoming_events(events):
     """Save scraped events and their fights to DB"""
     conn = get_conn()
     cursor = conn.cursor()
 
-    # Clear old upcoming events
     cursor.execute("DELETE FROM upcoming_events")
 
+    today = datetime.now().date()
+
     for event in events:
+        try:
+            event_date = datetime.strptime(event['date'], '%B %d, %Y').date()
+            if event_date < today:
+                print(f"[Scraper] Skipping past event: {event['name']} ({event['date']})")
+                continue
+        except ValueError:
+            print(f"[Scraper] Could not parse date for {event['name']}: {event['date']}, including anyway")
+
         fights = scrape_event_fights(event['event_url']) if event['event_url'] else []
 
         for fight in fights:
             cursor.execute("""
                 INSERT INTO upcoming_events 
                     (event_name, event_date, location, red_fighter, blue_fighter, weight_class)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """, (
                 event['name'],
                 event['date'],
@@ -107,15 +110,15 @@ def save_upcoming_events(events):
                 fight['weight_class']
             ))
 
-        # If no fights parsed, still store the event shell
         if not fights:
             cursor.execute("""
                 INSERT INTO upcoming_events 
                     (event_name, event_date, location, red_fighter, blue_fighter, weight_class)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """, (event['name'], event['date'], event['location'], '', '', ''))
 
     conn.commit()
+    cursor.close()
     conn.close()
     print(f"[Scraper] Saved {len(events)} events to DB at {datetime.now()}")
 

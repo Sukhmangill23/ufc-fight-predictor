@@ -38,12 +38,10 @@ function App() {
 
   const { currentUser, loading } = useAuth();
 
-  // Listen for navigate events from UpcomingEventsPage
   useEffect(() => {
     const handler = async (e) => {
       const { red, blue, rounds: r, titleBout: tb } = e.detail;
 
-      // Reset everything
       setPrediction({});
       setInsights(null);
       setRedStats(null);
@@ -58,7 +56,6 @@ function App() {
       setTitleBout(tb || false);
       setActiveTab('predict');
 
-      // Fetch both fighters' stats then auto-predict
       setPrediction({ loading: true });
       setAutoPredictPending(true);
 
@@ -80,7 +77,6 @@ function App() {
     return () => window.removeEventListener('navigateToPredict', handler);
   }, []);
 
-  // Auto-predict once both stats are loaded
   useEffect(() => {
     if (autoPredictPending && redStats && blueStats && redFighter && blueFighter) {
       setAutoPredictPending(false);
@@ -143,10 +139,30 @@ function App() {
           <button className="close-btn" onClick={() => setSidebarOpen(false)}>×</button>
         </div>
         <nav className="sidebar-nav">
-          <button onClick={() => { setActiveTab('predict');   setSidebarOpen(false); }}>Predict Fight</button>
-          <button onClick={() => { setActiveTab('events');    setSidebarOpen(false); }}>Upcoming Events</button>
-          <button onClick={() => { setActiveTab('analytics'); setSidebarOpen(false); }}>Analytics</button>
-          <button onClick={() => { setActiveTab('compare');   setSidebarOpen(false); }}>Compare Fighters</button>
+          <button
+            className={activeTab === 'predict' ? 'active' : ''}
+            onClick={() => { setActiveTab('predict'); setSidebarOpen(false); }}
+          >
+            Predict Fight
+          </button>
+          <button
+            className={activeTab === 'events' ? 'active' : ''}
+            onClick={() => { setActiveTab('events'); setSidebarOpen(false); }}
+          >
+            Upcoming Events
+          </button>
+          <button
+            className={activeTab === 'analytics' ? 'active' : ''}
+            onClick={() => { setActiveTab('analytics'); setSidebarOpen(false); }}
+          >
+            Analytics
+          </button>
+          <button
+            className={activeTab === 'compare' ? 'active' : ''}
+            onClick={() => { setActiveTab('compare'); setSidebarOpen(false); }}
+          >
+            Compare Fighters
+          </button>
           <LogoutButton className="logout-btn" />
         </nav>
       </div>
@@ -211,9 +227,7 @@ function App() {
                       ANALYZING FIGHT...
                     </>
                   ) : (
-                    <>
-                      <i className="fas fa-bolt me-2"></i> PREDICT WINNER
-                    </>
+                    'PREDICT WINNER'
                   )}
                 </button>
 
@@ -229,7 +243,6 @@ function App() {
 
                 {prediction.error && (
                   <div className="alert alert-danger mt-3">
-                    <i className="fas fa-exclamation-triangle me-2"></i>
                     {prediction.error}
                   </div>
                 )}

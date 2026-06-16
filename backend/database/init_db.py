@@ -1,14 +1,11 @@
-import sqlite3
-import os
+from app.db import get_conn
 
 
 def init_database():
-    db_path = os.path.join(os.path.dirname(__file__), 'ufc.db')
-    conn = sqlite3.connect(db_path, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL;")
-    conn.execute("PRAGMA synchronous=NORMAL;")
+    conn = get_conn()
+    cursor = conn.cursor()
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS fighters
+    cursor.execute('''CREATE TABLE IF NOT EXISTS fighters
                     (
                         name         TEXT PRIMARY KEY,
                         height       REAL,
@@ -25,9 +22,9 @@ def init_database():
                         last_scraped TEXT
                     )''')
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS fights
+    cursor.execute('''CREATE TABLE IF NOT EXISTS fights
                     (
-                        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id             SERIAL PRIMARY KEY,
                         RedFighter     TEXT,
                         BlueFighter    TEXT,
                         Date           TEXT,
@@ -42,52 +39,45 @@ def init_database():
                         FOREIGN KEY (BlueFighter) REFERENCES fighters(name)
                     )''')
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS predictions
+    cursor.execute('''CREATE TABLE IF NOT EXISTS predictions
                     (
-                        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id               SERIAL PRIMARY KEY,
                         red_fighter      TEXT NOT NULL,
                         blue_fighter     TEXT NOT NULL,
                         predicted_winner TEXT NOT NULL,
                         actual_winner    TEXT,
                         correct          INTEGER,
                         confidence       REAL,
-                        timestamp        DATETIME DEFAULT CURRENT_TIMESTAMP
+                        timestamp        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )''')
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS users
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users
                     (
-                        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id         SERIAL PRIMARY KEY,
                         username   TEXT UNIQUE NOT NULL,
                         password   TEXT NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )''')
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS upcoming_events
+    cursor.execute('''CREATE TABLE IF NOT EXISTS upcoming_events
                     (
-                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id           SERIAL PRIMARY KEY,
                         event_name   TEXT,
                         event_date   TEXT,
                         location     TEXT,
                         red_fighter  TEXT,
                         blue_fighter TEXT,
                         weight_class TEXT,
-                        scraped_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+                        scraped_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )''')
 
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_fighters_name  ON fighters (name)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_fights_date    ON fights (Date)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_predictions_ts ON predictions (timestamp)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_upcoming_date  ON upcoming_events (event_date)")
-
-    # Deduplicate on every startup
-    conn.execute('''
-        DELETE FROM fighters
-        WHERE rowid NOT IN (
-            SELECT MAX(rowid) FROM fighters GROUP BY name
-        )
-    ''')
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_fighters_name  ON fighters (name)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_fights_date    ON fights (Date)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_predictions_ts ON predictions (timestamp)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_upcoming_date  ON upcoming_events (event_date)")
 
     conn.commit()
+    cursor.close()
     conn.close()
     print("[DB] Schema initialised.")
 

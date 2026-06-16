@@ -1,9 +1,11 @@
 import pandas as pd
 import os
 import numpy as np
-import sqlite3
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from app.db import get_conn
+
+
 def get_data_path():
     """Get absolute path to data file"""
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,9 +27,7 @@ def preprocess_data(df):
     df = df.drop(columns=high_missing_drop, errors='ignore')
 
     df['TitleBout'] = df['TitleBout'].astype(int)
-
     df['ChampionshipRound'] = df['NumberOfRounds'].apply(lambda x: 1 if x == 5 else 0)
-
     df['Target'] = df['Winner'].map({'Red': 1, 'Blue': 0})
 
     for col in ['RedHeightCms', 'BlueHeightCms', 'RedReachCms', 'BlueReachCms']:
@@ -64,19 +64,16 @@ def preprocess_data(df):
 
     return df
 
-def get_fighter_stats(fighter_name):
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
 
-        # Try exact match first
-        cursor.execute("SELECT * FROM fighters WHERE name = ?", (fighter_name,))
+def get_fighter_stats(fighter_name):
+    conn = get_conn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM fighters WHERE name = %s", (fighter_name,))
         result = cursor.fetchone()
 
-        # Fall back to LIKE only if exact match fails
         if not result:
-            cursor.execute("SELECT * FROM fighters WHERE name LIKE ?", (f'%{fighter_name}%',))
+            cursor.execute("SELECT * FROM fighters WHERE name LIKE %s", (f'%{fighter_name}%',))
             result = cursor.fetchone()
 
         if result:
@@ -87,14 +84,14 @@ def get_fighter_stats(fighter_name):
         print(f"Error fetching fighter stats: {str(e)}")
         return None
     finally:
+        cursor.close()
         conn.close()
 
-def fill_missing_stats(stats):
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'ufc.db')
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
 
+def fill_missing_stats(stats):
+    conn = get_conn()
+    cursor = conn.cursor()
+    try:
         cursor.execute("""
             SELECT 
                 COALESCE(AVG(height), 180) AS height,
@@ -137,4 +134,5 @@ def fill_missing_stats(stats):
         print(f"Error filling missing stats: {str(e)}")
         return stats
     finally:
+        cursor.close()
         conn.close()

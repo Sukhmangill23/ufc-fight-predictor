@@ -1,14 +1,4 @@
-import sqlite3
-import os
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'database', 'ufc.db')
-
-
-def get_conn():
-    # timeout=30 means SQLite will wait up to 30s for a lock to clear
-    conn = sqlite3.connect(DB_PATH, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL;")
-    return conn
+from app.db import get_conn
 
 
 def get_top_performers():
@@ -65,5 +55,5 @@ def get_top_performers():
             'highest_accuracy':   highest_accuracy
         }
     finally:
-        # Always close — even if a query throws
+        cursor.close()
         conn.close()

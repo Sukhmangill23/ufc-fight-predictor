@@ -21,7 +21,13 @@ const UpcomingEventsPage = ({ onNavigateToPredict }) => {
           }
           grouped[fight.event_name].fights.push(fight);
         });
-        const groupedArr = Object.values(grouped);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const groupedArr = Object.values(grouped).filter(event => {
+          const eventDate = new Date(event.event_date);
+          return eventDate >= today;
+        });
+        groupedArr.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
         setEvents(groupedArr);
         if (groupedArr.length > 0) {
           setExpanded({ [groupedArr[0].event_name]: true });
@@ -34,14 +40,12 @@ const UpcomingEventsPage = ({ onNavigateToPredict }) => {
   const toggle = (name) =>
     setExpanded(prev => ({ ...prev, [name]: !prev[name] }));
 
-  // Detect if a fight is likely a title bout or main event (5 rounds)
   const isTitleFight = (eventName, index, totalFights) => {
     const name = eventName.toLowerCase();
     return name.includes('title') || name.includes('championship') || index === 0;
   };
 
   const getRounds = (eventName, index) => {
-    // Main event (index 0) or title fights get 5 rounds, rest get 3
     return isTitleFight(eventName, index) ? 5 : 3;
   };
 
@@ -100,7 +104,7 @@ const UpcomingEventsPage = ({ onNavigateToPredict }) => {
                       </thead>
                       <tbody>
                         {event.fights.map((fight, i) => {
-                          const fightRounds   = getRounds(event.event_name, i);
+                          const fightRounds    = getRounds(event.event_name, i);
                           const fightTitleBout = isTitleFight(event.event_name, i);
                           return (
                             <tr key={i}>
