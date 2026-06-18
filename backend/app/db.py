@@ -1,12 +1,9 @@
 import os
 import psycopg2
 
-DATABASE_URL = os.environ.get(
-    'DATABASE_URL',
-    'postgresql://ufcuser:ufcpassword@localhost:5434/ufcdb'
-)
-
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set")
 
 def get_conn():
-    """Return a new Postgres connection. Caller is responsible for closing it."""
     return psycopg2.connect(DATABASE_URL)

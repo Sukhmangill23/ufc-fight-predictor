@@ -9,7 +9,9 @@ def create_app():
     app = Flask(__name__)
 
     # JWT config
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev_secret_change_in_prod')
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
+    if not app.config['JWT_SECRET_KEY']:
+        raise RuntimeError("JWT_SECRET_KEY environment variable is not set")
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 
     CORS(app, resources={
