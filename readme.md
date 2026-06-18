@@ -31,10 +31,6 @@ The **UFC Fight Predictor** is a full-stack application combining a Flask REST A
 - **Deployment:** AWS EC2 (t3.micro)
 - **Networking:** AWS Elastic IP, Security Groups
 
-### AI Agent
-- **Model:** Google Gemini with function calling
-- **Integration:** Natural language queries resolved via live PostgreSQL lookups
-
 ### Frontend
 - **Framework:** React.js
 - **Charts:** Recharts, Chart.js
