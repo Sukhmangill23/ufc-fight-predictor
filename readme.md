@@ -12,7 +12,6 @@ The **UFC Fight Predictor** is a full-stack application combining a Flask REST A
 
 - Predict fight outcomes with confidence percentages
 - Search and compare 2,100+ fighters with detailed stat breakdowns
-- AI-powered chat agent for natural language fight queries
 - Deployed on AWS EC2 with Docker and PostgreSQL
 
 ---
@@ -59,10 +58,6 @@ The **UFC Fight Predictor** is a full-stack application combining a Flask REST A
 ### Fighter Comparison
 - Head-to-head comparison across striking, grappling, experience, and physical attributes
 - Interactive charts showing fighter advantages
-
-### AI Chat Agent
-- Ask questions like "Who has the best KO rate at lightweight?" in natural language
-- Gemini function-calling agent resolves queries against live PostgreSQL data
 
 ### User System
 - Registration and login with bcrypt and JWT
@@ -118,9 +113,6 @@ docker exec -it ufc-fight-predictor-backend-1 python3 /app/ml/model_pipeline.py
 - `GET /top_performers` - Top fighters by striking, KOs, and win streak
 - `GET /upcoming_events` - Upcoming UFC events
 
-### AI Agent
-- `POST /chat` - Natural language query to Gemini agent
-
 ---
 
 ## Project Structure
@@ -132,12 +124,10 @@ ufc-fight-predictor/
 │   │   ├── __init__.py          # Flask app factory, CORS, JWT setup
 │   │   ├── routes.py            # All API route handlers
 │   │   ├── db.py                # PostgreSQL connection (psycopg2)
-│   │   ├── agent.py             # Gemini function-calling AI agent
 │   │   └── services/
 │   │       ├── auth_service.py      # Registration and login logic
 │   │       ├── fighter_service.py   # Top performer queries
-│   │       ├── fighter_scraper.py   # ufcstats.com scraper
-│   │       └── scraper.py           # Upcoming events scraper
+│   │       └── fighter_scraper.py   # ufcstats.com scraper
 │   ├── database/
 │   │   └── init_db.py           # PostgreSQL schema initialization
 │   ├── ml/
