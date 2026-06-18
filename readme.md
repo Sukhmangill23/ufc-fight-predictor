@@ -1,6 +1,6 @@
 <h1 align="center">UFC Fight Predictor</h1>
 
-A machine learning-powered web application that predicts UFC fight outcomes and provides detailed fighter analytics.
+A full-stack web application that predicts UFC fight outcomes and provides detailed fighter analytics.
 
 **Live Demo:** http://34.228.181.192:3000
 
@@ -8,39 +8,12 @@ A machine learning-powered web application that predicts UFC fight outcomes and 
 
 ## Overview
 
-The **UFC Fight Predictor** is a full-stack application leveraging historical UFC data and machine learning to:
+The **UFC Fight Predictor** is a full-stack application combining a Flask REST API, PostgreSQL database, and React frontend to deliver fight predictions and fighter analytics for MMA enthusiasts and analysts.
 
 - Predict fight outcomes with confidence percentages
-- Provide comprehensive fighter statistics and performance analytics
-- Surface an AI-powered chat agent for natural language fight queries
-
-Built with a Flask REST API backend and React frontend, containerized with Docker and deployed on AWS EC2 with PostgreSQL.
-
----
-
-## Features
-
-### Fight Prediction
-- **Intelligent Matchup Analysis:** Select two fighters and get a data-driven prediction of the likely winner.
-- **Confidence Scoring:** View win probabilities for each fighter based on 40+ engineered features.
-- **Prediction Insights:** Understand the key factors driving each prediction — striking, grappling, streaks, and betting odds.
-
-### Fighter Analytics
-- **Comprehensive Fighter Profiles:** Height, reach, age, stance, weight class, and fighting style.
-- **Performance Metrics:** Win/loss records, KO rate, submission rate, finish rate, and win streaks.
-- **Historical Fight Log:** Full fight history with opponents, results, methods, and weight classes.
-
-### Fighter Comparison
-- **Head-to-Head Analysis:** Compare two fighters across striking, grappling, experience, and physical attributes.
-- **Visual Comparison Tools:** Interactive charts and graphs showing fighter advantages.
-
-### AI Chat Agent
-- **Natural Language Queries:** Ask questions like "Who has the best KO rate at lightweight?" using a Gemini-powered function-calling agent.
-- **Live Database Lookups:** Agent queries the PostgreSQL database in real time via tool calls.
-
-### User System
-- **Secure Authentication:** Registration and login with bcrypt password hashing and JWT tokens.
-- **Prediction History:** Track all previous predictions with accuracy metrics.
+- Search and compare 2,100+ fighters with detailed stat breakdowns
+- AI-powered chat agent for natural language fight queries
+- Deployed on AWS EC2 with Docker and PostgreSQL
 
 ---
 
@@ -50,28 +23,54 @@ Built with a Flask REST API backend and React frontend, containerized with Docke
 - **Framework:** Flask (Python 3.11)
 - **Database:** PostgreSQL 15 (psycopg2)
 - **Authentication:** JWT (flask-jwt-extended), bcrypt
-- **AI Agent:** Google Gemini with function calling
-- **Web Scraping:** BeautifulSoup4, Requests
-- **Task Scheduling:** APScheduler
 - **Server:** Gunicorn
-
-### Frontend
-- **Framework:** React.js
-- **Charts & Visualization:** Recharts, Chart.js
-- **HTTP Client:** Axios
-- **Styling:** Custom CSS
-
-### Machine Learning
-- **Model:** XGBoost with isotonic probability calibration (CalibratedClassifierCV)
-- **Pipeline:** Scikit-learn (StandardScaler, SimpleImputer, ColumnTransformer)
-- **Features:** 40+ engineered features including recency-weighted striking and grappling stats, finish rates, streaks, betting odds, and physical differentials
-- **Validation:** 10-fold temporal cross-validation
-- **Accuracy:** ~75-80% on historical data
+- **API Architecture:** RESTful
 
 ### Infrastructure
 - **Containerization:** Docker, Docker Compose
 - **Deployment:** AWS EC2 (t3.micro)
 - **Networking:** AWS Elastic IP, Security Groups
+
+### AI Agent
+- **Model:** Google Gemini with function calling
+- **Integration:** Natural language queries resolved via live PostgreSQL lookups
+
+### Frontend
+- **Framework:** React.js
+- **Charts:** Recharts, Chart.js
+- **HTTP Client:** Axios
+- **Styling:** Custom CSS
+
+### Machine Learning
+- **Model:** XGBoost with isotonic probability calibration
+- **Pipeline:** Scikit-learn (StandardScaler, SimpleImputer, ColumnTransformer)
+- **Validation:** 10-fold temporal cross-validation
+- **Accuracy:** ~75-80% on historical data
+
+---
+
+## Features
+
+### Fight Prediction
+- Select two fighters and get a data-driven prediction with confidence percentages
+- Prediction insights showing which factors (striking, grappling, streaks, odds) drove the result
+
+### Fighter Analytics
+- Full fighter profiles: height, reach, age, stance, weight class
+- Win/loss records, KO rate, submission rate, finish rate, win streaks
+- Complete fight history with opponents, results, and methods
+
+### Fighter Comparison
+- Head-to-head comparison across striking, grappling, experience, and physical attributes
+- Interactive charts showing fighter advantages
+
+### AI Chat Agent
+- Ask questions like "Who has the best KO rate at lightweight?" in natural language
+- Gemini function-calling agent resolves queries against live PostgreSQL data
+
+### User System
+- Registration and login with bcrypt and JWT
+- Prediction history with accuracy tracking
 
 ---
 
@@ -109,18 +108,18 @@ docker exec -it ufc-fight-predictor-backend-1 python3 /app/ml/model_pipeline.py
 - `POST /login` - Authenticate and receive JWT token
 
 ### Fighter Data
-- `GET /search_fighters` - Search for fighters by name
-- `POST /get_fighter_stats` - Retrieve detailed fighter statistics
-- `POST /fighter_analytics_details` - Get comprehensive fighter analytics
+- `GET /search_fighters` - Search fighters by name
+- `POST /get_fighter_stats` - Retrieve fighter statistics
+- `POST /fighter_analytics_details` - Get full fighter profile and fight history
 
 ### Predictions
-- `POST /predict` - Generate fight prediction between two fighters
-- `POST /prediction_insights` - Get detailed explanation of prediction factors
+- `POST /predict` - Generate fight prediction
+- `POST /prediction_insights` - Get feature-level prediction breakdown
 - `GET /prediction_history` - Retrieve prediction history and accuracy stats
 
 ### Analytics
-- `GET /fighter_analytics` - Get general fighter statistics and metrics
-- `GET /top_performers` - Retrieve top performing fighters data
+- `GET /fighter_analytics` - Aggregate fighter statistics
+- `GET /top_performers` - Top fighters by striking, KOs, and win streak
 - `GET /upcoming_events` - Upcoming UFC events
 
 ### AI Agent
