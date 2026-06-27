@@ -1,0 +1,40 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: Check for import errors
+        run: |
+          cd backend
+          python -c "from app import create_app; print('OK')"
+
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/ec2-user/ufc-fight-predictor
+            git pull origin main
+            docker compose restart backend
