@@ -32,7 +32,6 @@ jobs:
           chmod 600 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem $EC2_USER@$EC2_HOST "
             cd /home/ec2-user/ufc-fight-predictor &&
-            git pull origin main &&
             docker compose restart backend
           "
           rm key.pem
