@@ -34,8 +34,10 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
-          printf '%s' "$EC2_KEY" > key.pem
+          echo "$EC2_KEY" > key.pem
+          sed -i 's/\\n/\n/g' key.pem
           chmod 600 key.pem
+          cat key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem $EC2_USER@$EC2_HOST "
             cd /home/ec2-user/ufc-fight-predictor &&
             git pull origin main &&
