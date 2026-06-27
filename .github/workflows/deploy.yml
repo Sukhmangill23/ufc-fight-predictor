@@ -1,29 +1,23 @@
 name: CI/CD
-
 on:
   push:
     branches: [main]
-
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: |
           pip install -r backend/requirements.txt
-
       - name: Check for import errors
         run: |
           cd backend
           python -c "from app import create_app; print('OK')"
-
   cd:
     needs: ci
     runs-on: ubuntu-latest
@@ -35,9 +29,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
           echo "$EC2_KEY" > key.pem
-          sed -i 's/\\n/\n/g' key.pem
           chmod 600 key.pem
-          cat key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem $EC2_USER@$EC2_HOST "
             cd /home/ec2-user/ufc-fight-predictor &&
             git pull origin main &&
