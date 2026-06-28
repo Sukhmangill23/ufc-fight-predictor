@@ -1,5 +1,9 @@
 <h1 align="center">UFC Fight Predictor</h1>
-
+<p align="center">
+  <a href="https://github.com/Sukhmangill23/ufc-fight-predictor/actions/workflows/deploy.yml">
+    <img src="https://github.com/Sukhmangill23/ufc-fight-predictor/actions/workflows/deploy.yml/badge.svg" alt="CI/CD" />
+  </a>
+</p>
 A full-stack web application that predicts UFC fight outcomes and provides detailed fighter analytics.
 
 **Live Demo:** http://34.228.181.192:3000
